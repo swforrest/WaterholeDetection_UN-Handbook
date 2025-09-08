@@ -12,18 +12,18 @@ Adapted from an existing boat detection pipeline, this project leverages satelli
 
 The project follows a comprehensive pipeline:
 
-1. Image Acquisition:
+1. **Image Acquisition:**
 - Use Planet satellite imagery service to order recent images of the target area
 - Automatically download imagery for the specified region and date range
 
-2. Pre-processing:
+2. **Pre-processing:**
 - Prepare satellite images for neural network detection
 - Convert and normalize imagery to suitable format
 
-3. Detection:
+3. **Detection:**
 - Utilize a pre-trained YOLOv5 model to detect and classify waterholes
 - Generate comprehensive output with waterhole locations, classifications, and coordinates
 
-4. Analysis:
+4. **Analysis:**
 - Collate detection results
 - Output CSV with detailed waterhole information
