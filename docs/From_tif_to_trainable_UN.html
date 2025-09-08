@@ -202,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
   <div class="abstract">
     <div class="block-title">Abstract</div>
-    <p>Download environmental layers using Google Earth Engine (GEE).</p>
+    <p>This script handles the image zip file once they have been downloaded using the planet_download.ipynb Jupyter notebook up to a product allowing us to train a model.</p>
   </div>
 </div>
 
@@ -210,8 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This script handles the image zip file once they have been downloaded using the planet_download.ipynb Jupyter notebook up to a product allowing us to train a model.</p>
-<p>In details, this cript will apply the extraction from the zip file of downloaded images from Planet; Prepare the images creating the PNG images from the tif file allowing for the manual annotation; and will segment the images describe them for check, and cull them to suit the model requirements, and finally apply the model training.</p>
+<p>This script will apply the extraction from the zip file of downloaded images from Planet; Prepare the images creating the PNG images from the tif file allowing for the manual annotation; and will segment the images describe them for check, and cull them to suit the model requirements, and finally apply the model training.</p>
 <p>First. we define the parth of the project, and refer the python code to the correct python scripts containing the functions that are automatically called when running dependencies.</p>
 <div id="cell-3" class="cell" data-execution_count="1">
 <details class="code-fold">
