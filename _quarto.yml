@@ -3,13 +3,15 @@ project:
   output-dir: docs
 
 website:
-  title: "WaterholeDetection_UN-Handbook"
+  title: "Waterhole Detection - UN Handbook"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
-      - S2_download_GEE.ipynb
+      - href: about.qmd
+        text: Getting Started
+      - href: S2_download_GEE.ipynb
+        text: Download GEE Data
 
 format:
   html:
