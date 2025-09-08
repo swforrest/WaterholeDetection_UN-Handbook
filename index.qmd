@@ -2,6 +2,28 @@
 title: "WaterholeDetection_UN-Handbook"
 ---
 
-This is a Quarto website.
+This project aims to detect and assess the locations of waterholes in Northern Australia using satellite imagery and machine learning. The primary focus is on identifying waterholes susceptible to damage from invasive herbivores such as water buffalo, feral cattle, and pigs.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+## Project Background
+
+Adapted from an existing boat detection pipeline, this project leverages satellite image analysis and YOLOv5 object detection to map and evaluate waterholes in the Arnhem Land and Cape York regions. While originally based on the [CountingBoats](https://github.com/charlie-turner-314/CountingBoats) repository, our workflow has been modified to use Jupyter notebooks for increased clarity and control.
+
+## How
+
+The project follows a comprehensive pipeline:
+
+1. Image Acquisition:
+- Use Planet satellite imagery service to order recent images of the target area
+- Automatically download imagery for the specified region and date range
+
+2. Pre-processing:
+- Prepare satellite images for neural network detection
+- Convert and normalize imagery to suitable format
+
+3. Detection:
+- Utilize a pre-trained YOLOv5 model to detect and classify waterholes
+- Generate comprehensive output with waterhole locations, classifications, and coordinates
+
+4. Analysis:
+- Collate detection results
+- Output CSV with detailed waterhole information

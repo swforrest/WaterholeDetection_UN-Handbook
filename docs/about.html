@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>About – Waterhole Detection - UN Handbook</title>
+<title>Getting Started – Waterhole Detection - UN Handbook</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -115,15 +115,24 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#installation" id="toc-installation" class="nav-link active" data-scroll-target="#installation">Installation</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#running" id="toc-running" class="nav-link" data-scroll-target="#running">Running</a></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About</h1>
+<h1 class="title">Getting Started</h1>
 </div>
 
 
@@ -140,9 +149,66 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>About this site</p>
+<section id="installation" class="level3">
+<h3 class="anchored" data-anchor-id="installation">Installation</h3>
+<p>Clone this <a href="https://github.com/swforrest/counting_waterholes">repository</a>. Will allow you to run all the notebooks and follow the instructions bellow.</p>
+<section id="yolov5" class="level4">
+<h4 class="anchored" data-anchor-id="yolov5">Yolov5</h4>
+<p>Clone <a href="https://github.com/ultralytics/yolov5">YoloV5</a>. This is used for the Neural Network detections.</p>
+</section>
+<section id="python-dependencies" class="level4">
+<h4 class="anchored" data-anchor-id="python-dependencies">Python Dependencies</h4>
+<p>It’s recommended to install a conda-based package manager such as <a href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda</a>.</p>
+<p>Running the following will then install all required dependencies (run only once to set the environment up):</p>
+<pre><code>conda env create --file env.yaml</code></pre>
+</section>
+</section>
+<section id="setup" class="level3">
+<h3 class="anchored" data-anchor-id="setup">Setup</h3>
+<p>To start working on this project, activate the environment with:</p>
+<pre><code>conda activate Boats</code></pre>
+<section id="configurations" class="level4">
+<h4 class="anchored" data-anchor-id="configurations">Configurations</h4>
+<p>Modify configuration files to match your specific environment and research requirements: - <code>config_train_Drive.yaml</code>: Training configuration - <code>config_test_Drive.yaml</code>: Testing configuration<br>
+- <code>config_deploy_Drive.yaml</code>: Deployment configuration</p>
+</section>
+</section>
+<section id="running" class="level3">
+<h3 class="anchored" data-anchor-id="running">Running</h3>
+<p>As mentionned, the whole pipeline flow designed by Charlie Turner for the boat detection, is not used here. You will need to run specific blocks of code in the respective jupyter notebooks of each stage of our workflow.</p>
+<section id="images-dowload" class="level4">
+<h4 class="anchored" data-anchor-id="images-dowload">Images dowload</h4>
+<p>Using the notebook <code>planet_download.ipynb</code>, you will: - Define Area of Interest (AOI) - Specify output directory and date range - Download and extract satellite imagery</p>
+</section>
+<section id="prepare-for-training" class="level4">
+<h4 class="anchored" data-anchor-id="prepare-for-training">Prepare for training</h4>
+<p>Using the notebook <code>from_tif_to_trainable_AF.ipynb</code>, you will: - Convert .tif files to training-ready format - Prepare data for neural network training</p>
+</section>
+<section id="training" class="level4">
+<h4 class="anchored" data-anchor-id="training">Training</h4>
+<p>Either simply run the last code block from <code>from_tif_to_trainable_AF.ipynb</code> function train() or copy paste the function output in the yolov5 folder command prompt.</p>
+</section>
+<section id="testing" class="level4">
+<h4 class="anchored" data-anchor-id="testing">Testing</h4>
+<p>Using the notebook <code>post_training.ipynb</code>, the notebook will guide you along the main steps to test the model you just trained. Those steps are:<br>
+- Prepare images for segmentation - Run model detection - Generate annotations - Compare detections to ground truth - Create confusion matrix - Visualize waterhole detections</p>
+</section>
+<section id="deployment" class="level4">
+<h4 class="anchored" data-anchor-id="deployment">Deployment</h4>
+<p>Originally the repository had a whole section about the classifying process, which included many functions dependent on the classes of the detection. The adaptation of this existing code to waterhole detection, has proven to be more difficult and time consumming than anticipated. As a result, The deployment section of the repository is still under development and requires further debugging. Some functions are created but need refinement for smooth operation.</p>
+</section>
+<section id="visualisation" class="level4">
+<h4 class="anchored" data-anchor-id="visualisation">Visualisation</h4>
+<p>There are some visualisation notebooks in the visualisation folder. These can be run to perform some visualisations of the data. The <code>plot_output</code> script is also a useful tool for visualising the output of the detection model on individual images.</p>
+<p>All thos functions and modules were developped for the visualisation of Boats and was not adapted to waterholes by lack of time.</p>
+</section>
+</section>
+<section id="acknowledgements" class="level3">
+<h3 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h3>
+<p>We acknowledge Charlie Turner and other collaborators for their work on the Boat detection repository, largely foundamental to the existance of this repository.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

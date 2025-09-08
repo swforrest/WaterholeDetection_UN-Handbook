@@ -115,8 +115,15 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#project-background" id="toc-project-background" class="nav-link active" data-scroll-target="#project-background">Project Background</a></li>
+  <li><a href="#how" id="toc-how" class="nav-link" data-scroll-target="#how">How</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -140,10 +147,45 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This is a Quarto website.</p>
-<p>To learn more about Quarto websites visit <a href="https://quarto.org/docs/websites" class="uri">https://quarto.org/docs/websites</a>.</p>
+<p>This project aims to detect and assess the locations of waterholes in Northern Australia using satellite imagery and machine learning. The primary focus is on identifying waterholes susceptible to damage from invasive herbivores such as water buffalo, feral cattle, and pigs.</p>
+<section id="project-background" class="level2">
+<h2 class="anchored" data-anchor-id="project-background">Project Background</h2>
+<p>Adapted from an existing boat detection pipeline, this project leverages satellite image analysis and YOLOv5 object detection to map and evaluate waterholes in the Arnhem Land and Cape York regions. While originally based on the <a href="https://github.com/charlie-turner-314/CountingBoats">CountingBoats</a> repository, our workflow has been modified to use Jupyter notebooks for increased clarity and control.</p>
+</section>
+<section id="how" class="level2">
+<h2 class="anchored" data-anchor-id="how">How</h2>
+<p>The project follows a comprehensive pipeline:</p>
+<ol type="1">
+<li>Image Acquisition:</li>
+</ol>
+<ul>
+<li>Use Planet satellite imagery service to order recent images of the target area</li>
+<li>Automatically download imagery for the specified region and date range</li>
+</ul>
+<ol start="2" type="1">
+<li>Pre-processing:</li>
+</ol>
+<ul>
+<li>Prepare satellite images for neural network detection</li>
+<li>Convert and normalize imagery to suitable format</li>
+</ul>
+<ol start="3" type="1">
+<li>Detection:</li>
+</ol>
+<ul>
+<li>Utilize a pre-trained YOLOv5 model to detect and classify waterholes</li>
+<li>Generate comprehensive output with waterhole locations, classifications, and coordinates</li>
+</ul>
+<ol start="4" type="1">
+<li>Analysis:</li>
+</ol>
+<ul>
+<li>Collate detection results</li>
+<li>Output CSV with detailed waterhole information</li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
