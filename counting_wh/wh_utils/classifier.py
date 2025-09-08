@@ -28,10 +28,10 @@ Intended usage:
 Usage: python classifier.py -d <.tif directory> -o <output file name>
 """
 
-TEMP = os.path.join(os.getcwd(), "Boat_Temp")
+TEMP = os.path.join(os.getcwd(), "wh_Temp")
 """ Temporary directory for storing images """
 
-TEMP_PNG = os.path.join(os.getcwd(), "Boat_Temp_PNG")
+TEMP_PNG = os.path.join(os.getcwd(), "wh_Temp_PNG")
 """ Temporary directory for storing png version of tif images """
 
 TILE_SIZE = cfg["TILE_SIZE"]
@@ -65,11 +65,11 @@ def process_tif(
     Args:
         file: The tif file to process
         img_path: The path to the directory to store the data in
-        stat_cutoff: The cutoff for static boats (pixels)
-        moving_cutoff: The cutoff for moving boats (pixels)
+        stat_cutoff: The cutoff for static whs (pixels)
+        moving_cutoff: The cutoff for moving whs (pixels)
     Returns:
-        A tuple of the static boats and moving boats
-        With boats as a list of: [x, y, filename]
+        A tuple of the static whs and moving whs
+        With whs as a list of: [x, y, filename]
     """
     classifications, _ = detect_from_tif(
         file,
@@ -80,25 +80,25 @@ def process_tif(
         cfg["CONFIDENCE_THRESHOLD"],
     )
     if len(classifications) == 0:
-        static_boats = np.array([])
-        moving_boats = np.array([])
+        static_whs = np.array([])
+        moving_whs = np.array([])
     else:
-        # split into moving and static boats
+        # split into moving and static whs
         static = classifications[classifications[:, 3].astype(float) == 0]
         moving = classifications[classifications[:, 3].astype(float) == 1]
         # cluster each set separately
         static_clusters = cluster_AF(static, stat_cutoff)
         moving_clusters = cluster_AF(moving, moving_cutoff)
         # process each set separately
-        static_boats = process_clusters_AF(static_clusters)
-        moving_boats = process_clusters_AF(moving_clusters)
+        static_whs = process_clusters_AF(static_clusters)
+        moving_whs = process_clusters_AF(moving_clusters)
         # convert pixel coordinates to lat/long
         # tif file should have coord details
-        static_boats = pixel2latlong(static_boats, os.path.join(cfg["tif_dir"], file))
-        moving_boats = pixel2latlong(moving_boats, os.path.join(cfg["tif_dir"], file))
+        static_whs = pixel2latlong(static_whs, os.path.join(cfg["tif_dir"], file))
+        moving_whs = pixel2latlong(moving_whs, os.path.join(cfg["tif_dir"], file))
         # add the image name to each classification (as the last column)
-        static_boats = np.c_[static_boats, [file] * len(static_boats)]
-        moving_boats = np.c_[moving_boats, [file] * len(moving_boats)]
+        static_whs = np.c_[static_whs, [file] * len(static_whs)]
+        moving_whs = np.c_[moving_whs, [file] * len(moving_whs)]
     # # move the tif into the processed folder
     # NOTE: deleting here cause we are running out of storage.
     os.remove(os.path.join(cfg["tif_dir"], file))
@@ -110,7 +110,7 @@ def process_tif(
     #     os.remove(target)
     # os.rename(path.join(cfg["tif_dir"], file), target)
 
-    return static_boats, moving_boats
+    return static_whs, moving_whs
 
 def process_tif_waterhole(
     file: str, 
@@ -182,36 +182,36 @@ def process_day(
     Args:
         files: The files to process
         img_path: The path to the directory to store the data in
-        stat_cutoff: The cutoff for static boats (pixels)
-        moving_cutoff: The cutoff for moving boats (pixels)
+        stat_cutoff: The cutoff for static whs (pixels)
+        moving_cutoff: The cutoff for moving whs (pixels)
         day: The day to process
         i: The index of the day
         n_days: The total number of days
 
     Returns:
-        A tuple of the static boats, moving boats, and the day
-        With boats as a list of: [x, y, confidence, class, width, height, filename]
+        A tuple of the static whs, moving whs, and the day
+        With whs as a list of: [x, y, confidence, class, width, height, filename]
     """
     print(f"Classifying day {i+1} of {n_days} - {day} ({i/n_days*100:.2f}%)")
 
-    all_static_boats, all_moving_boats = zip(
+    all_static_whs, all_moving_whs = zip(
         *[process_tif(file, stat_cutoff, moving_cutoff) for file in files]
     )
 
-    all_static_boats = all_static_boats[0]
-    all_moving_boats = all_moving_boats[0]
+    all_static_whs = all_static_whs[0]
+    all_moving_whs = all_moving_whs[0]
     # once a day has been classified, need to cluster again
-    static_boats = cluster(
-        np.array(all_static_boats), cfg["STAT_DISTANCE_CUTOFF_LATLONG"]
+    static_whs = cluster(
+        np.array(all_static_whs), cfg["STAT_DISTANCE_CUTOFF_LATLONG"]
     )
-    moving_boats = cluster(
-        np.array(all_moving_boats), cfg["MOVING_DISTANCE_CUTOFF_LATLONG"]
+    moving_whs = cluster(
+        np.array(all_moving_whs), cfg["MOVING_DISTANCE_CUTOFF_LATLONG"]
     )
     # process again
-    static_boats = process_clusters(static_boats)
-    moving_boats = process_clusters(moving_boats)
+    static_whs = process_clusters(static_whs)
+    moving_whs = process_clusters(moving_whs)
 
-    return (static_boats, moving_boats, day)
+    return (static_whs, moving_whs, day)
 
 
 def process_day_waterhole(
@@ -266,42 +266,42 @@ def process_day_AF(
     Args:
         files: The files to process
         img_path: The path to the directory to store the data in
-        stat_cutoff: The cutoff for static boats (pixels)
-        moving_cutoff: The cutoff for moving boats (pixels)
+        stat_cutoff: The cutoff for static whs (pixels)
+        moving_cutoff: The cutoff for moving whs (pixels)
         day: The day to process
         i: The index of the day
         n_days: The total number of days
 
     Returns:
-        A tuple of the static boats, moving boats, and the day
-        With boats as a list of: [x, y, confidence, class, width, height, filename]
+        A tuple of the static whs, moving whs, and the day
+        With whs as a list of: [x, y, confidence, class, width, height, filename]
     """
     print(f"Classifying day {i+1} of {n_days} - {day} ({i/n_days*100:.2f}%)")
 
-    all_static_boats, all_moving_boats = zip(
+    all_static_whs, all_moving_whs = zip(
         *[process_tif(file, stat_cutoff, moving_cutoff) for file in files]
     )
 
-    all_static_boats = all_static_boats[0]
-    all_moving_boats = all_moving_boats[0]
+    all_static_whs = all_static_whs[0]
+    all_moving_whs = all_moving_whs[0]
     # once a day has been classified, need to cluster again
-    static_boats = cluster_AF(
-        np.array(all_static_boats), cfg["STAT_DISTANCE_CUTOFF_LATLONG"]
+    static_whs = cluster_AF(
+        np.array(all_static_whs), cfg["STAT_DISTANCE_CUTOFF_LATLONG"]
     )
-    moving_boats = cluster_AF(
-        np.array(all_moving_boats), cfg["MOVING_DISTANCE_CUTOFF_LATLONG"]
+    moving_whs = cluster_AF(
+        np.array(all_moving_whs), cfg["MOVING_DISTANCE_CUTOFF_LATLONG"]
     )
     # process again
-    static_boats = process_clusters_AF(static_boats)
-    moving_boats = process_clusters_AF(moving_boats)
+    static_whs = process_clusters_AF(static_whs)
+    moving_whs = process_clusters_AF(moving_whs)
 
-    return (static_boats, moving_boats, day)
+    return (static_whs, moving_whs, day)
 
 
 def classify_directory(directory, classify_days=None):
     """
     Use for directory of tiff images. Preprocesses, classifies, clusters.
-    Writes the results to a csv file called boat_detections.csv in the output directory
+    Writes the results to a csv file called wh_detections.csv in the output directory
 
     Args:
         directory: The directory to classify
@@ -344,9 +344,9 @@ def classify_directory(directory, classify_days=None):
     ]
 
     # write to csv
-    for static_boats, moving_boats, day in daily_results:
-        write_to_csv(static_boats, day, "boat_detections.csv")
-        write_to_csv(moving_boats, day, "boat_detections.csv")
+    for static_whs, moving_whs, day in daily_results:
+        write_to_csv(static_whs, day, "wh_detections.csv")
+        write_to_csv(moving_whs, day, "wh_detections.csv")
 
     polygons = []
     if SAVE_COVERAGE:
@@ -375,7 +375,7 @@ def classify_directory(directory, classify_days=None):
 def classify_directory_AF(directory, classify_days=None):
     """
     Use for directory of tiff images. Preprocesses, classifies, clusters.
-    Writes the results to a csv file called boat_detections.csv in the output directory
+    Writes the results to a csv file called wh_detections.csv in the output directory
 
     Args:
         directory: The directory to classify
@@ -469,7 +469,7 @@ def classify_images(images_dir, STAT_DISTANCE_CUTOFF_PIX, OUTFILE):
 
     Args:
         images_dir: The directory containing the images
-        STAT_DISTANCE_CUTOFF_PIX: The cutoff for static boats (pixels)
+        STAT_DISTANCE_CUTOFF_PIX: The cutoff for static whs (pixels)
         OUTFILE: The output file name
 
     Returns:
@@ -490,9 +490,9 @@ def classify_images(images_dir, STAT_DISTANCE_CUTOFF_PIX, OUTFILE):
         # cluster
         clusters = cluster(classifications, STAT_DISTANCE_CUTOFF_PIX)
         # process
-        boats = process_clusters(clusters)
+        whs = process_clusters(clusters)
         # write to csv
-        write_to_csv(boats, day, OUTFILE)
+        write_to_csv(whs, day, OUTFILE)
 
 
 def classify_text(
@@ -504,7 +504,7 @@ def classify_text(
 
     Args:
         dir: The directory containing the text files
-        STAT_DISTANCE_CUTOFF_PIX: The cutoff for static boats (pixels)
+        STAT_DISTANCE_CUTOFF_PIX: The cutoff for static whs (pixels)
         OUTFILE: The output file name
         save_clusters: Whether to save the clusters to csv before processing
 
@@ -518,9 +518,9 @@ def classify_text(
         # save the clusters to csv
         write_to_csv(classifications=clusters, day=day, filepath=OUTFILE)
     # process
-    boats = process_clusters(clusters)
+    whs = process_clusters(clusters)
     # write to csv
-    write_to_csv(classifications=boats, day=day, filepath=OUTFILE)
+    write_to_csv(classifications=whs, day=day, filepath=OUTFILE)
 
 
 def prepare_temp_dirs():
@@ -546,7 +546,7 @@ def detect_from_tif(
 
     Returns:
         A tuple of the classifications and low confidence classifications
-        With boats as a list of: [x, y, confidence, class, width, height]
+        With whs as a list of: [x, y, confidence, class, width, height]
     """
     prepare_temp_dirs()
     file_name = path.basename(file)
@@ -717,7 +717,7 @@ def detect_from_dir(
 
     Returns:
         A tuple of the classifications and low confidence classifications
-        With boats as a list of: [x, y, confidence, class, width, height]
+        With whs as a list of: [x, y, confidence, class, width, height]
     """
     detect_path = path.join(yolo_dir, "detect.py")
 
@@ -1129,17 +1129,17 @@ def condense(cluster: np.ndarray) -> np.ndarray:
         The condensed cluster in the form x, y, confidence, class, width, height, filenames
     """
     # remove cluster number
-    thisBoat = np.asarray(cluster)[:, [0, 1, 2, 3, 4, 5]].astype(np.float64)
-    thisBoatMean = np.mean(thisBoat, axis=0)
+    thiswh = np.asarray(cluster)[:, [0, 1, 2, 3, 4, 5]].astype(np.float64)
+    thiswhMean = np.mean(thiswh, axis=0)
     # using maximum confidence as the cluster confidence
-    maxVals = np.max(thisBoat, axis=0)
-    thisBoatMean[2] = maxVals[2]
+    maxVals = np.max(thiswh, axis=0)
+    thiswhMean[2] = maxVals[2]
     # use the most common class
-    thisBoatMean[3] = scipy.stats.mode(thisBoat[:, 3])[0]
+    thiswhMean[3] = scipy.stats.mode(thiswh[:, 3])[0]
     if cluster.shape[1] == 8:
         files = np.unique(np.asarray(cluster)[:, 6])
-        return np.append(thisBoatMean.astype(str), " ".join(files))
-    return thisBoatMean
+        return np.append(thiswhMean.astype(str), " ".join(files))
+    return thiswhMean
 
 def condense_AF(cluster: np.ndarray) -> np.ndarray:
     """
@@ -1178,7 +1178,7 @@ def write_to_csv(classifications, day, filepath) -> None:
     Returns:
         None
     """
-    print(f"Writing {len(classifications)} boats to {filepath} for {day}")
+    print(f"Writing {len(classifications)} whs to {filepath} for {day}")
     # Write to output csv
     # Create output csv if it doesn't exist
     filepath = os.path.join(cfg["output_dir"], filepath)
@@ -1188,8 +1188,8 @@ def write_to_csv(classifications, day, filepath) -> None:
 
     # Write the data for that day to a csv
     lines = [
-        f"{day},{int(float(boat[3]))},{boat[6]},{boat[1]},{boat[0]},{boat[2]},{boat[4]},{boat[5]}\n"
-        for boat in classifications
+        f"{day},{int(float(wh[3]))},{wh[6]},{wh[1]},{wh[0]},{wh[2]},{wh[4]},{wh[5]}\n"
+        for wh in classifications
     ]
     with open(filepath, "a+") as outFile:
         outFile.writelines(lines)

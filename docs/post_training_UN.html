@@ -221,7 +221,7 @@ Includes:</p>
 - compare_detections_to_ground_truth: Match up labels and detections, compare them, and save the results
 - confusion_matrix: Summarize the results of the comparison</code></pre>
 <p>Load first all the configs and required packs:</p>
-<div id="cell-4" class="cell" data-execution_count="1">
+<div id="cell-4" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -250,11 +250,11 @@ Includes:</p>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_boats.boat_utils.config <span class="im">import</span> cfg</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_boats.boat_utils <span class="im">import</span> image_cutting_support <span class="im">as</span> ics</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_boats.boat_utils <span class="im">import</span> heatmap <span class="im">as</span> hm</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils.config <span class="im">import</span> cfg</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> image_cutting_support <span class="im">as</span> ics</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> heatmap <span class="im">as</span> hm</span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.classifier</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.classifier</span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># cluster, process_clusters, read_classifications, pixel2latlong</span></span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the project root to sys.path (adjust as needed)</span></span>
@@ -275,21 +275,21 @@ Adding AutoShape... </code></pre>
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run preparation:</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.prepare(<span class="st">"counting_waterholes/testing"</span>, <span class="st">"config_test_GPU.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.prepare(<span class="st">"counting_waterholes/testing"</span>, <span class="st">"config_test_GPU.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Then I need to use the created png to label it with labelme. This will allow us to compare my annotation to the detection of the trained model i.e.&nbsp;test the model.</p>
 <p>Once the manual annotation is done, we can apply the segmentation used from the testing.segment():</p>
-<div id="cell-9" class="cell" data-execution_count="2">
+<div id="cell-9" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run segmentation without spliting 80% of the images for validation!</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.segment(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.segment(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Cropping Image: D:/Waterholes_project/counting_waterholes/testing\./pngs\20240204_mimal_test.png
@@ -364,9 +364,9 @@ Other version to be found on this website: https://pytorch.org/get-started/previ
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run detection on my testing </span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.run_detection(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.run_detection(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Copy of the order command that is run run to yolo cmd by the function run_detectionpage. Just in order to debug and be informative. Do not run.</p>
@@ -377,23 +377,23 @@ Other version to be found on this website: https://pytorch.org/get-started/previ
 </details>
 </div>
 <p>Use the detection output of the model on my testing images to produce labelme style annotation using the backwards_annotation():</p>
-<div id="cell-19" class="cell" data-execution_count="3">
+<div id="cell-19" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run the annotation of the images using the detection of the model:</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.backwards_annotation_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.backwards_annotation_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Then finally, compare the detected WH with my labeled WH:</p>
-<div id="cell-21" class="cell" data-execution_count="4">
+<div id="cell-21" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#comparison of my labels with the detected WH:</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.compare_detections_to_ground_truth(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.compare_detections_to_ground_truth(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Label directory D:/Waterholes_project/counting_waterholes/testing_v3\./labels\05_02_2025\050225_NT does not exist, skipping image...
@@ -402,13 +402,13 @@ Could not parse date from 050225_NT.csv</code></pre>
 </div>
 </div>
 <p>Create the confusion matrix which summarises the results:</p>
-<div id="cell-23" class="cell" data-execution_count="6">
+<div id="cell-23" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the confusion matrix</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.confusion_matrix_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.confusion_matrix_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Possible to process a single images by comparing the detections and labels for a single image, used in a function but not usefull by hand.</p>
@@ -416,31 +416,31 @@ Could not parse date from 050225_NT.csv</code></pre>
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #create the confusion matrix</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_boats.boat_utils.testing</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_wh.wh_utils.testing</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># counting_boats.boat_utils.testing.process_image_AF(r"D:\Waterholes_project\counting_waterholes\testing_v3\classifications", r"D:/Waterholes_project/counting_waterholes/testing_v3/labels", "config_test_Drive.yaml")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># counting_wh.wh_utils.testing.process_image_AF(r"D:\Waterholes_project\counting_waterholes\testing_v3\classifications", r"D:/Waterholes_project/counting_waterholes/testing_v3/labels", "config_test_Drive.yaml")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Compare the counts one by one:</p>
-<div id="cell-27" class="cell" data-execution_count="2">
+<div id="cell-27" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#comparison labelled vs detected WH:</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.waterholes_count_compare(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.waterholes_count_compare(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Now we want to plot the waterholes on the images. To do that, I need first to stich the training images together:</p>
-<div id="cell-29" class="cell" data-execution_count="4">
+<div id="cell-29" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> datetime</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.stitch_PNGs</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.stitch_PNGs</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.stitch_PNGs.stitch(<span class="vs">r"D:</span><span class="dv">\W</span><span class="vs">aterholes_project</span><span class="er">\</span><span class="vs">counting_waterholes</span><span class="ch">\t</span><span class="vs">esting_v3</span><span class="dv">\s</span><span class="vs">titching"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.stitch_PNGs.stitch(<span class="vs">r"D:</span><span class="dv">\W</span><span class="vs">aterholes_project</span><span class="er">\</span><span class="vs">counting_waterholes</span><span class="ch">\t</span><span class="vs">esting_v3</span><span class="dv">\s</span><span class="vs">titching"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Max x: 92, Max y: 60
@@ -452,9 +452,9 @@ Saved stitched image to D:\Waterholes_project\counting_waterholes\testing_v3\sti
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot WH using that stiched image:</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_boats.boat_utils.testing</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>counting_boats.boat_utils.testing.plot_waterholes(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.plot_waterholes(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 

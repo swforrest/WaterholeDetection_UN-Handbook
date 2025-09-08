@@ -19,7 +19,7 @@ import typer
 import os
 import yaml
 import numpy as np
-from  .boat_utils import image_cutting_support as ics
+from  .wh_utils import image_cutting_support as ics
 
 app = typer.Typer()
 

@@ -316,21 +316,21 @@ def extract(download_path, start_date=None, end_date=None):
 
 def count(save_coverage=False, days=None) -> None:
     """
-    Run the classifier to count boats in the extracted images
+    Run the classifier to count whs in the extracted images
 
     Essentially calls the main function of the classifier module. Most of the time here we will save coverage later, 
     so we don't need to save it here. 
 
     Args:
         save_coverage: whether to save the coverage of the images
-        days: the number of days to count boats for
+        days: the number of days to count whs for
 
     Returns:
         None
     """
     classifier.main(save_coverage=save_coverage, days=days)
     # add the aoi column to the classifications and save again
-    det_path = os.path.join(cfg["output_dir"], "boat_detections.csv")
+    det_path = os.path.join(cfg["output_dir"], "wh_detections.csv")
     if os.path.exists(det_path):
         classifications = pd.read_csv(det_path)
         classifications["aoi"] = classifications["images"].apply(
@@ -397,7 +397,7 @@ groups = [
 
 
 def analyse(
-    boat_csv_path,
+    wh_csv_path,
     coverage_path,
     start_date=None,
     end_date=None,
@@ -423,10 +423,10 @@ def analyse(
     """
     all_coverage = pd.read_csv(coverage_path)
     all_coverage["date"] = pd.to_datetime(all_coverage["date"])
-    boats = pd.read_csv(boat_csv_path)
-    all_boats = boats.copy()
-    all_boats["date"] = pd.to_datetime(all_boats["date"], dayfirst=True)
-    boats["date"] = pd.to_datetime(boats["date"], dayfirst=True)
+    whs = pd.read_csv(wh_csv_path)
+    all_whs = whs.copy()
+    all_whs["date"] = pd.to_datetime(all_whs["date"], dayfirst=True)
+    whs["date"] = pd.to_datetime(whs["date"], dayfirst=True)
     # filter by date (day only, inclusive)
     # time doesn't matter
     if start_date is not None:
@@ -434,14 +434,14 @@ def analyse(
         coverage = all_coverage[
             (all_coverage["date"] >= start_date) & (all_coverage["date"] <= end_date)
         ]
-        boats = boats[(boats["date"] >= start_date) & (boats["date"] <= end_date)]
+        whs = whs[(whs["date"] >= start_date) & (whs["date"] <= end_date)]
     if end_date is not None:
         end_date = pd.to_datetime(end_date).ceil("d")
         coverage = all_coverage[
             (all_coverage["date"] >= start_date) & (all_coverage["date"] <= end_date)
         ]
-        boats = boats[(boats["date"] >= start_date) & (boats["date"] <= end_date)]
-        all_boats = all_boats[all_boats["date"] <= end_date]
+        whs = whs[(whs["date"] >= start_date) & (whs["date"] <= end_date)]
+        all_whs = all_whs[all_whs["date"] <= end_date]
 
     prefix = f"{id}_" if id is not None else ""
 
@@ -495,11 +495,11 @@ def analyse(
         #     print("Saved", full_heatmap_path)
 
         # # log to comet:
-        # #   - the number of boats in this batch
+        # #   - the number of whs in this batch
         # #       - moving
         #       - stationary
         #       - total
-        #   - the number of boats in total
+        #   - the number of whs in total
         #       - moving
         #       - stationary
         #       - total
@@ -508,20 +508,20 @@ def analyse(
         pass
 
     if exp is not None:
-        # get the number of boats in this batch
-        moving = len(boats[boats["class"] == 1])
-        stationary = len(boats[boats["class"] == 0])
-        total = len(boats)
-        exp.log_metric("boats_batch/total", total, step=batch)
-        exp.log_metric("boats_batch/moving", moving, step=batch)
-        exp.log_metric("boats_batch/stationary", stationary, step=batch)
-        # get the number of boats in total
-        moving = len(all_boats[all_boats["class"] == 1])
-        stationary = len(all_boats[all_boats["class"] == 0])
-        total = len(all_boats)
-        exp.log_metric("boats_total/total", total, step=batch)
-        exp.log_metric("boats_total/moving", moving, step=batch)
-        exp.log_metric("boats_total/stationary", stationary, step=batch)
+        # get the number of whs in this batch
+        moving = len(whs[whs["class"] == 1])
+        stationary = len(whs[whs["class"] == 0])
+        total = len(whs)
+        exp.log_metric("whs_batch/total", total, step=batch)
+        exp.log_metric("whs_batch/moving", moving, step=batch)
+        exp.log_metric("whs_batch/stationary", stationary, step=batch)
+        # get the number of whs in total
+        moving = len(all_whs[all_whs["class"] == 1])
+        stationary = len(all_whs[all_whs["class"] == 0])
+        total = len(all_whs)
+        exp.log_metric("whs_total/total", total, step=batch)
+        exp.log_metric("whs_total/moving", moving, step=batch)
+        exp.log_metric("whs_total/stationary", stationary, step=batch)
         # get the number of days of images in this batch
         exp.log_metric("days", len(coverage["date"].unique()), step=batch)
         # get the coverage (percentage) of the area of interest for each images in this batch
@@ -532,7 +532,7 @@ def analyse(
                 step=batch,
             )
         # log the detections csv
-        exp.log_asset(boat_csv_path, overwrite=True)
+        exp.log_asset(wh_csv_path, overwrite=True)
 
 
 def archive(path: str, coverage_path: str, start_date=None, end_date=None):

@@ -423,7 +423,7 @@ if __name__ == "__main__":
     udm_file = input("udm:")
     cloud_cov, cloud_mask = cloud_coverage_udm(udm_file)
     cov, _, _ = area_coverage_tif(
-        "/Users/charlieturner/Documents/CountingBoats/data/polygons/peel.json", tif_file
+        "/Users/charlieturner/Documents/Countingwhs/data/polygons/peel.json", tif_file
     )
     print("Cloud coverage: ", cloud_cov)
     print("Coverage: ", cov)

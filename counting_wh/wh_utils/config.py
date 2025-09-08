@@ -3,7 +3,7 @@ Load and parse the config file for other modules
 
 usage:
 
-    from boat_utils.config import cfg
+    from wh_utils.config import cfg
 """
 
 import os

@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay
 import json
 import subprocess
-from counting_boats.boat_utils.stitch_PNGs import stitch_AF
+from counting_whs.wh_utils.stitch_PNGs import stitch_AF
 
 
 #Manualy change them in accordance to the desired value. Are not called in some functions so to be easier they are here...
@@ -464,7 +464,7 @@ def compare_detections_to_ground_truth(run_folder, config):
             this_img = os.path.basename(root)
             data = process_image_AF(root, label_dir, config)
             comparisons_to_csv(data, os.path.join(run_folder, this_img + ".csv"))
-    # create an overall file, with all boats in lat long
+    # create an overall file, with all whs in lat long
     if config.get("raw_images", False):
         classifications_to_lat_long_AF(run_folder, config)
 
@@ -706,7 +706,7 @@ def compare(ml: np.ndarray, manual: np.ndarray, cutoff):
     """
     given two lists of clusters, compare them (cluster them and note the results)
     e.g if ml has the point (52, 101), and manual has (51.8, 101.2), they should be clustered together
-    , and this boat should be noted as being in both sets
+    , and this wh should be noted as being in both sets
 
     Args:
 
@@ -839,7 +839,7 @@ def classifications_to_lat_long(run_folder, run_config):
         None
     """
     # Initialise dataframe
-    all_boats = pd.DataFrame(
+    all_whs = pd.DataFrame(
         columns=[
             "date",
             "latitude",
@@ -863,9 +863,9 @@ def classifications_to_lat_long(run_folder, run_config):
             continue
         date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
         image_name = file.split(".")[0]
-        boats = pd.read_csv(os.path.join(run_folder, file)).values.tolist()
+        whs = pd.read_csv(os.path.join(run_folder, file)).values.tolist()
         # remove index
-        if len(boats) == 0:
+        if len(whs) == 0:
             continue
         im_name = image_name.split(".")[0] + ".tif"
         image = [
@@ -878,20 +878,20 @@ def classifications_to_lat_long(run_folder, run_config):
             print(f"Could not find image {im_name} for {file}")
             continue
         image = image[0]
-        boats = pixel2latlong(boats, image)
-        # append the boats to the 'all_boats' dataframe
-        boats = pd.DataFrame(
-            boats, columns=["longitude", "latitude", "ml_class", "manual_class"]
+        whs = pixel2latlong(whs, image)
+        # append the whs to the 'all_whs' dataframe
+        whs = pd.DataFrame(
+            whs, columns=["longitude", "latitude", "ml_class", "manual_class"]
         )
-        boats["date"] = date
-        boats["filename"] = image_name
+        whs["date"] = date
+        whs["filename"] = image_name
         # Agree: -1 if disagree, 0 if agree stationary, 1 if agree moving
-        boats["agree"] = boats["ml_class"] == boats["manual_class"]
-        # boats["agree"] = boats.apply(lambda x: x["ml_class"] if x["agree"] else -1, axis=1)
-        all_boats = pd.concat([all_boats, boats]) if all_boats.size != 0 else boats
-    if all_boats.size == 0:
+        whs["agree"] = whs["ml_class"] == whs["manual_class"]
+        # whs["agree"] = whs.apply(lambda x: x["ml_class"] if x["agree"] else -1, axis=1)
+        all_whs = pd.concat([all_whs, whs]) if all_whs.size != 0 else whs
+    if all_whs.size == 0:
         return
-    all_boats.to_csv(os.path.join(run_folder, "all_boats.csv"), index=False)
+    all_whs.to_csv(os.path.join(run_folder, "all_whs.csv"), index=False)
 
 
 def classifications_to_lat_long_AF(run_folder, run_config):
@@ -1011,7 +1011,7 @@ def waterholes_count_compare(run_folder, config):
             ]
         )
     # x axis should be filename
-    # y axis is count of boats
+    # y axis is count of whs
     # one column for manual, one for ml for each image
     all_data["manual"] = all_data["manual_class"].apply(lambda x: 1 if x != -1 else 0)
     all_data["ml"] = all_data["ml_class"].apply(lambda x: 1 if x != -1 else 0)
@@ -1283,7 +1283,7 @@ def all_mistakes(run_folder, config):
     """
     Given a summary csv, find the images where there is a mistake made.
     Since the x and y in the summary refer to the entire image, we need to
-    calculate the subimage(s) that the boat is in. save the best subimage (most central)
+    calculate the subimage(s) that the wh is in. save the best subimage (most central)
     to a new directory with the type of mistake (e.g "false_positive")
 
     Args:
@@ -1298,10 +1298,10 @@ def all_mistakes(run_folder, config):
     output_dir = os.path.join(run_folder, "mistakes")
     os.makedirs(output_dir, exist_ok=True)
     # for image:
-    #   for boat:
+    #   for wh:
     #       if mistake:
     #           find the subimage
-    #           draw a box around the boat
+    #           draw a box around the wh
     #           save the image
     summary_dir = run_folder
     img_dir = os.path.join(config["path"], config["segmented_images"])
@@ -1322,15 +1322,15 @@ def all_mistakes(run_folder, config):
             print(f"Could not find image directory for {csv_name}")
             print(f"Expected {this_img_dir}")
             continue
-        boats = np.asarray(
+        whs = np.asarray(
             [line.strip().split(",") for line in open(csv) if line[0] != "x"]
         )
         id = 0
         stride = cfg["STRIDE"]
-        for boat in boats:
-            if boat[2] != boat[3]:
-                x = float(boat[0])
-                y = float(boat[1])
+        for wh in whs:
+            if wh[2] != wh[3]:
+                x = float(wh[0])
+                y = float(wh[1])
                 # get the best subimage
                 row = max(y // stride - 1, 1)
                 col = max(x // stride - 1, 1)
@@ -1369,11 +1369,11 @@ def all_mistakes(run_folder, config):
                 fig = plt.figure()
                 ax = fig.add_subplot(111)
                 ax.imshow(plt.imread(img_path))
-                # draw a box around the boat. 10x10 pixels.
+                # draw a box around the wh. 10x10 pixels.
                 #   Red if   : detected but not labelled
                 #   Yellow if: labelled but not detected
-                ml = int(float(boat[2]))
-                manual = int(float(boat[3]))
+                ml = int(float(wh[2]))
+                manual = int(float(wh[3]))
                 rel_x = x - (col * 104)
                 rel_y = y - (row * 104)
                 if ml != -1 and manual != -1 and ml != manual:
@@ -1403,7 +1403,7 @@ def all_mistakes(run_folder, config):
                         fontsize=6,
                     )
                 elif ml != -1 and manual == -1:
-                    # also draw a big circle around the boat (50x50)
+                    # also draw a big circle around the wh (50x50)
                     rect = plt.Rectangle(
                         (rel_x - 10, rel_y - 10),
                         20,
@@ -1423,7 +1423,7 @@ def all_mistakes(run_folder, config):
                     # and annotate the detection as "ML: 0"
                     ax.annotate(f"ML: {ml}", (rel_x, rel_y), color="r", fontsize=6)
                 else:
-                    # also draw a big star around the boat (50x50)
+                    # also draw a big star around the wh (50x50)
                     rect = plt.Rectangle(
                         (rel_x - 10, rel_y - 10),
                         20,
@@ -1481,7 +1481,7 @@ def all_mistakes(run_folder, config):
 
 def subimage_confidence(run_folder, config):
     """
-    For config["subimage_confidence"] (int) boats, plot the 16 squares around the boat
+    For config["subimage_confidence"] (int) whs, plot the 16 squares around the wh
     and their confidence scores.
 
     Args:
@@ -1523,7 +1523,7 @@ def subimage_confidence(run_folder, config):
             clusters = pd.DataFrame(clusters)
         except:
             continue
-        boat = clusters.sample()
+        wh = clusters.sample()
         # work out which subimage the cluster is in
         # get the image
         img_path = os.path.join(config["pngs"], f"{img}.png")
@@ -1533,18 +1533,18 @@ def subimage_confidence(run_folder, config):
         # cropped image bounds
         W = 200
         H = 200
-        x1 = boat[0].values[0] - W / 2
-        y1 = boat[1].values[0] - H / 2
+        x1 = wh[0].values[0] - W / 2
+        y1 = wh[1].values[0] - H / 2
         x2 = x1 + W
         y2 = y1 + H
-        all_boats = clusters.where(
+        all_whs = clusters.where(
             (clusters[0] > x1)
             & (clusters[0] < x2)
             & (clusters[1] > y1)
             & (clusters[1] < y2)
         )
-        print(all_boats.shape)
-        # make a cropped image around the boat
+        print(all_whs.shape)
+        # make a cropped image around the wh
         img_data = Image.open(img_path)
         img_data = img_data.crop((x1, y1, x2, y2))
         # upscale the image
@@ -1554,26 +1554,26 @@ def subimage_confidence(run_folder, config):
         subimg_path = os.path.join(run_folder, "imgs", f"{img}_{int(x1)}_{int(y1)}.png")
         img_data.save(subimg_path)
         # upscale the clusters (each x and y is how far away from the top left corner of the subimage * scale)
-        all_boats[0] = all_boats[0] * scale
-        all_boats[1] = all_boats[1] * scale
-        all_boats[0] = all_boats[0] - (x1 * scale)
-        all_boats[1] = all_boats[1] - (y1 * scale)
+        all_whs[0] = all_whs[0] * scale
+        all_whs[1] = all_whs[1] * scale
+        all_whs[0] = all_whs[0] - (x1 * scale)
+        all_whs[1] = all_whs[1] - (y1 * scale)
         # grab the image
         with Image.open(subimg_path) as im:
-            # for each in the cluster, draw a rectangle around the boat
+            # for each in the cluster, draw a rectangle around the wh
             draw = ImageDraw.Draw(im)
-            grouped = all_boats.groupby(6)
+            grouped = all_whs.groupby(6)
             for _, c in grouped:
                 print("G")
                 for _, row in c.iterrows():
                     w = row[4] * 1.05 * scale
                     h = row[5] * 1.05 * scale
-                    # Bounds of the boat
+                    # Bounds of the wh
                     x0 = row[0] - w / 2
                     y0 = row[1] - h / 2
                     x1 = x0 + w
                     y1 = y0 + h
-                    # draw a rectangle around the boat (0.5 opacity)
+                    # draw a rectangle around the wh (0.5 opacity)
                     conf = row[2]
                     if conf > 0.9:  # Green
                         color = (0, 255, 0, 100)
@@ -1582,13 +1582,13 @@ def subimage_confidence(run_folder, config):
                     elif conf > 0.5:  # Red
                         color = (255, 0, 0, 100)
                     draw.rectangle((x0, y0, x1, y1), width=1, outline=color)
-                num_boats = len(c)
+                num_whs = len(c)
                 avg_conf = c[2].mean()
                 max_conf = c[2].max()
                 min_conf = c[2].min()
-                # draw the text just above the boat
-                # "Detections: {}, Avg Confidence: {}, Range: {} - {}".format(num_boats, avg_conf, min_conf, max_conf)
-                stats = f"Detections: {num_boats}, Avg Confidence: {avg_conf:.2f}, Range: {min_conf:.2f} - {max_conf:.2f}"
+                # draw the text just above the wh
+                # "Detections: {}, Avg Confidence: {}, Range: {} - {}".format(num_whs, avg_conf, min_conf, max_conf)
+                stats = f"Detections: {num_whs}, Avg Confidence: {avg_conf:.2f}, Range: {min_conf:.2f} - {max_conf:.2f}"
                 x = max(c[0].min() - (c[4].max() * scale) / 2, 0)
                 y = max(c[1].min() - (c[5].max() * scale) / 2 - 15, 0)
                 draw.text((x, y), stats, fill=(255, 255, 255, 255))
@@ -1765,8 +1765,8 @@ def segregate_by_image(directory, into=None):
 #     """
 #     config = parse_config(config) #AF: to solve the error: 'str' object has no attribute 'get'
 #     run_folder = os.path.normpath(run_folder) #AF
-#     if os.path.exists(os.path.join(run_folder, "all_boats.csv")):
-#         all_data = pd.read_csv(os.path.join(run_folder, "all_boats.csv"))
+#     if os.path.exists(os.path.join(run_folder, "all_whs.csv")):
+#         all_data = pd.read_csv(os.path.join(run_folder, "all_whs.csv"))
 #     else:
 #         # read all the csvs in the run folder that start with a date (8 numbers)
 #         all_data = pd.concat(
@@ -1785,11 +1785,11 @@ def segregate_by_image(directory, into=None):
 #         y_pred=pred,
 #         y_true=true,
 #         labels=[-1, 0, 1],
-#         display_labels=["Not a Boat", "Static Boat", "Moving Boat"],
+#         display_labels=["Not a wh", "Static wh", "Moving wh"],
 #     )
 #     fig = plt.gcf()
 #     fig.suptitle(
-#         f"{len(true[true != -1])} Labelled Boats (Detection Accuracy: {round(acc, 3)})"
+#         f"{len(true[true != -1])} Labelled whs (Detection Accuracy: {round(acc, 3)})"
 #     )
 #     fig.tight_layout()
 #     # save the confusion matrix image
@@ -1934,7 +1934,7 @@ def segregate_by_image(directory, into=None):
 #                 h = int(h / 2)
 #                 json_data["shapes"].append(
 #                     {
-#                         "label": "boat",
+#                         "label": "wh",
 #                         "points": [[x - w, y - h], [x + w, y + h]],
 #                         "group_id": None,
 #                         "shape_type": "rectangle",
@@ -1954,7 +1954,7 @@ def segregate_by_image(directory, into=None):
 #                 h = int(h / 2)
 #                 json_data["shapes"].append(
 #                     {
-#                         "label": "movingBoat",
+#                         "label": "movingwh",
 #                         "points": [[x - w, y - h], [x + w, y + h]],
 #                         "group_id": None,
 #                         "shape_type": "rectangle",
@@ -2139,7 +2139,7 @@ def segregate_by_image(directory, into=None):
 #             with open(json_path, "w+") as f:
 #                 json.dump(json_data, f)
 
-def plot_boats(csvs: str, imgs: str, **kwargs):
+def plot_whs(csvs: str, imgs: str, **kwargs):
     """
     given a directory of csvs, plot the waterholes on the images and save the images
 
@@ -2192,14 +2192,14 @@ def plot_boats(csvs: str, imgs: str, **kwargs):
         if len(img) == 0:
             continue
         img = img[0]
-        # get the boats
-        boats = np.asarray(
+        # get the whs
+        whs = np.asarray(
             [line.strip().split(",") for line in open(csv) if line[0] != "x"]
         )
         # plot the image
         fig, ax = plt.subplots()
         ax.imshow(plt.imread(img))
-        # draw a box around the boat. 10x10 pixels.
+        # draw a box around the wh. 10x10 pixels.
         #   Green if : detected and labelled static
         #   Blue If  : detected and labelled moving
         #   Orange if: detected and labelled but disagree
@@ -2207,11 +2207,11 @@ def plot_boats(csvs: str, imgs: str, **kwargs):
         #   Yellow if: labelled but not detected
         correct = 0
         incorrect = 0
-        for boat in boats:
-            x = float(boat[0])
-            y = float(boat[1])
-            ml = int(float(boat[2]))
-            manual = int(float(boat[3]))
+        for wh in whs:
+            x = float(wh[0])
+            y = float(wh[1])
+            ml = int(float(wh[2]))
+            manual = int(float(wh[3]))
             if ml == manual:
                 correct += 1
             else:
@@ -2237,7 +2237,7 @@ def plot_boats(csvs: str, imgs: str, **kwargs):
                 (x - 5, y - 5), 10, 10, linewidth=0.1, edgecolor=color, facecolor="none"
             )
             if color == "r":
-                # also draw a big circle around the boat (50x50)
+                # also draw a big circle around the wh (50x50)
                 circ = plt.Circle(
                     (x, y), 50, linewidth=0.3, edgecolor=color, facecolor="none"
                 )
@@ -2245,7 +2245,7 @@ def plot_boats(csvs: str, imgs: str, **kwargs):
                 # and annotate the detection as "ML: 0"
                 ax.annotate(f"ML: {ml}", (x, y), color=color, fontsize=6)
             if color == "y":
-                # also draw a big star around the boat (50x50)
+                # also draw a big star around the wh (50x50)
                 star = plt.Polygon(
                     np.array([[x - 50, y - 50], [x + 50, y - 50], [x, y + 50]]),
                     linewidth=0.3,
@@ -2272,7 +2272,7 @@ def plot_boats(csvs: str, imgs: str, **kwargs):
                 )
             ax.add_patch(rect)
             if color == "orange":
-                # also annotate the boat with the classes as "ML: 0, Label: 1"
+                # also annotate the wh with the classes as "ML: 0, Label: 1"
                 ax.annotate(
                     f"ML: {ml}, Label: {manual}", (x, y), color=color, fontsize=6
                 )

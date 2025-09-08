@@ -1,5 +1,5 @@
 """
-This module contains functions for user interaction and input/output for a CLI tool for counting boats.
+This module contains functions for user interaction and input/output for a CLI tool for counting whs.
 Unfinished, untested, and possibly un-needed.
 
 Author: Charlie Turner

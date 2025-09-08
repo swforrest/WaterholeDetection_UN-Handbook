@@ -1,5 +1,5 @@
 """
-A collection of utilities to interact with the Planet API specifically for the counting boats project.
+A collection of utilities to interact with the Planet API specifically for the counting whs project.
 Opinionated in that there are assumptions made about the desired workflow.
 
 The main functions are:
