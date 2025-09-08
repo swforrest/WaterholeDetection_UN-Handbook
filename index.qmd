@@ -1,5 +1,5 @@
 ---
-title: "WaterholeDetection_UN-Handbook"
+title: "Waterhole Detection - UN Handbook"
 ---
 
 This project aims to detect and assess the locations of waterholes in Northern Australia using satellite imagery and machine learning. The primary focus is on identifying waterholes susceptible to damage from invasive herbivores such as water buffalo, feral cattle, and pigs.

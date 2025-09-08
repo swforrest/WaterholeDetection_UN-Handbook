@@ -4,7 +4,7 @@ title: "Getting Started"
 
 ### Installation
 
-Clone this [repository](https://github.com/swforrest/counting_waterholes). Will allow you to run all the notebooks and follow the instructions bellow.
+Clone the repositry here [https://github.com/swforrest/WaterholeDetection_UN-Handbook](https://github.com/swforrest/WaterholeDetection_UN-Handbook). This will allow you to run all the notebooks and follow the instructions below. 
 
 #### Yolov5
 
