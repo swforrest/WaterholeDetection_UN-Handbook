@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "S2_download_GEE.html",
+    "href": "S2_download_GEE.html",
+    "title": "GEE Environmental Covariates",
+    "section": "",
+    "text": "Show the code\nimport os\nimport ee\nimport geemap\nimport json\nimport requests\n\nfrom PIL import Image\n\n\n\n\nShow the code\n# Initialize Earth Engine\ntry:\n    ee.Initialize()\n    print(\"Earth Engine already initialized\")\nexcept Exception as e:\n    ee.Authenticate()\n    ee.Initialize()\n    print(\"Earth Engine initialized\")\n\n\n\n            \n            \n\n\nEarth Engine already initialized\n\n\n\n\n\n\nShow the code\nMap = geemap.Map(lite_mode=True)\nMap.add_basemap(\"SATELLITE\")\nMap\n\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\nShow the code\n# Option 1: Read JSON from file\ndef load_aoi_from_file(json_file_path):\n    with open(json_file_path, 'r') as f:\n        geojson = json.load(f)\n    \n    # Create an ee.Geometry from the GeoJSON\n    return ee.Geometry(geojson)\n\n\n\n            \n            \n\n\n\n\nShow the code\n# Option 1: Define AOI as a geometry\n# aoi = ee.Geometry.Rectangle([-122.5, 37.5, -122.0, 38.0])  # San Francisco area\n\naoi_name = 'example'\naoi = load_aoi_from_file(fr'C:\\Users\\for329\\OneDrive - Queensland University of Technology\\FirstByte Waterholes WD\\counting_waterholes\\data\\polygons\\{aoi_name}.geojson')\n\n# Show the AOI on map\nMap.addLayer(aoi, {}, 'Area of Interest')\n# Center the map on the AOI and zoom to it\nMap.centerObject(aoi, zoom=10)  # Adjust zoom level (1-20) as needed\nMap  # Display the map with the AOI"
+  },
+  {
+    "objectID": "S2_download_GEE.html#plot-the-basemap",
+    "href": "S2_download_GEE.html#plot-the-basemap",
+    "title": "GEE Environmental Covariates",
+    "section": "",
+    "text": "Show the code\nMap = geemap.Map(lite_mode=True)\nMap.add_basemap(\"SATELLITE\")\nMap"
+  },
+  {
+    "objectID": "S2_download_GEE.html#import-aoi",
+    "href": "S2_download_GEE.html#import-aoi",
+    "title": "GEE Environmental Covariates",
+    "section": "",
+    "text": "Show the code\n# Option 1: Read JSON from file\ndef load_aoi_from_file(json_file_path):\n    with open(json_file_path, 'r') as f:\n        geojson = json.load(f)\n    \n    # Create an ee.Geometry from the GeoJSON\n    return ee.Geometry(geojson)\n\n\n\n            \n            \n\n\n\n\nShow the code\n# Option 1: Define AOI as a geometry\n# aoi = ee.Geometry.Rectangle([-122.5, 37.5, -122.0, 38.0])  # San Francisco area\n\naoi_name = 'example'\naoi = load_aoi_from_file(fr'C:\\Users\\for329\\OneDrive - Queensland University of Technology\\FirstByte Waterholes WD\\counting_waterholes\\data\\polygons\\{aoi_name}.geojson')\n\n# Show the AOI on map\nMap.addLayer(aoi, {}, 'Area of Interest')\n# Center the map on the AOI and zoom to it\nMap.centerObject(aoi, zoom=10)  # Adjust zoom level (1-20) as needed\nMap  # Display the map with the AOI"
+  },
+  {
+    "objectID": "S2_download_GEE.html#get-monthly-composites-of-sentinel-2",
+    "href": "S2_download_GEE.html#get-monthly-composites-of-sentinel-2",
+    "title": "GEE Environmental Covariates",
+    "section": "Get Monthly Composites of Sentinel-2",
+    "text": "Get Monthly Composites of Sentinel-2\n\n\nShow the code\ndef get_monthly_composites(start_date, end_date, aoi):\n    \"\"\"Generate monthly S2 composites for the given date range and AOI.\"\"\"\n    # Convert date strings to ee.Date objects\n    start = ee.Date(start_date)\n    end = ee.Date(end_date)\n    \n    # Get number of months\n    months = end.difference(start, 'month').round().int()\n\n    # First, check if we have any S2 data for this month (without filtering)\n    raw_collection = ee.ImageCollection('COPERNICUS/S2_SR') \\\n        .filterBounds(aoi) \\\n        .filterDate(start_date, end_date)\n    \n    raw_count = raw_collection.size().getInfo()\n    print(f\"  Found {raw_count} raw S2 images for {start_date} to {end_date}\")\n    \n    # Function to get image for a specific month\n    def get_monthly_image(month_index):\n        # Calculate current month start and end\n        current_month_start = start.advance(month_index, 'month')\n        current_month_end = current_month_start.advance(1, 'month')\n        \n        # Format dates for naming\n        date_format = current_month_start.format('YYYY-MM')\n        \n        # Get S2 collection for this month\n        s2_collection = ee.ImageCollection('COPERNICUS/S2_SR') \\\n            .filterBounds(aoi) \\\n            .filterDate(current_month_start, current_month_end) \\\n            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 90)) \\\n            .map(maskS2clouds_SCL)\n        \n        # # Check if we have any images left after cloud filtering\n        # filtered_count = s2_collection.size().getInfo()\n        # print(f\"  After cloud filtering: {filtered_count} images remain\")\n        \n        # Create a median composite and clip to AOI\n        composite = s2_collection.median().clip(aoi)\n        \n        # Select RGB bands and scale for visualization\n        # Bands: B2 (blue), B3 (green), B4 (red)\n        # These get re-ordered to RGB by the image_cutting_support.create_padded_png_S2 function\n        rgb = composite.select(['B2', 'B3', 'B4'])\n        \n        return rgb.set({\n            'system:index': date_format,\n            'system:time_start': current_month_start.millis()\n        })\n    \n    # Create a list of months\n    month_indices = ee.List.sequence(0, months)\n    \n    # Map the function over the months\n    composites = ee.ImageCollection.fromImages(\n        month_indices.map(get_monthly_image)\n    )\n    \n    return composites"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "WaterholeDetection_UN-Handbook",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  }
+]
