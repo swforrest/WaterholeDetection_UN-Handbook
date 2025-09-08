@@ -12,6 +12,11 @@ website:
         text: Getting Started
       - href: S2_download_GEE.ipynb
         text: Download GEE Data
+      - href: From_tif_to_trainable_UN.ipynb
+        text: Training
+      - href: post_training_UN.ipynb
+        text: Testing 
+       
 
 format:
   html:
