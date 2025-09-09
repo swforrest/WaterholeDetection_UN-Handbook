@@ -6,24 +6,31 @@ This project aims to detect and assess the locations of waterholes in Northern A
 
 ## Project Background
 
-Adapted from an existing boat detection pipeline, this project leverages satellite image analysis and YOLOv5 object detection to map and evaluate waterholes in the Arnhem Land and Cape York regions. While originally based on the [CountingBoats](https://github.com/charlie-turner-314/CountingBoats) repository, our workflow has been modified to use Jupyter notebooks for increased clarity and control.
+Adapted from an existing boat detection pipeline, this project leverages satellite image analysis and YOLOv5 object detection to map and evaluate waterholes in the Arnhem Land and Cape York regions. While originally based on the [CountingBoats](https://github.com/charlie-turner-314/CountingBoats) repository, our workflow has been modified to use Jupyter notebooks for increased clarity and control. In this website, we are guiding you step by step through our code to train and test a neural network to detect objects from satellite images. 
 
 ## How
 
 The project follows a comprehensive pipeline:
 
-1. **Image Acquisition:**
+1. **Project Set up** 
+- Install requirements and depedencies to run the workflow smoothly  
+
+2. **Image Acquisition:**
 - Use Planet satellite imagery service to order recent images of the target area
 - Automatically download imagery for the specified region and date range
 
-2. **Pre-processing:**
-- Prepare satellite images for neural network detection
+3. **Neural Network training:**
+- Prepare satellite images for neural network training
 - Convert and normalize imagery to suitable format
+- Label images and prepare them accodringly for the training of the neural netwrok 
+- And finally, train the YOLOv5 model 
 
-3. **Detection:**
-- Utilize a pre-trained YOLOv5 model to detect and classify waterholes
+4. **Testing of the trained model:**
+- Utilize our trained YOLOv5 model to detect and classify waterholes in a testing set of images
+- Asses the accuracy of the trained model with a confusion matrix and a ground-truth comparison
+-
+
+5. **Further Analysis Work In Progress:**
 - Generate comprehensive output with waterhole locations, classifications, and coordinates
-
-4. **Analysis:**
 - Collate detection results
 - Output CSV with detailed waterhole information
