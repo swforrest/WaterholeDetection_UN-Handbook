@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
   <div class="abstract">
     <div class="block-title">Abstract</div>
-    <p>This script handles the image zip file once they have been downloaded using the planet_download.ipynb Jupyter notebook up to a product allowing us to train a model.</p>
+    <p>Preparation of satellite images up to our neural network model training.</p>
   </div>
 </div>
 
@@ -215,8 +215,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>This script extracts the image from the .zip file downloaded from Planet; prepares the images creating the .png image from the .tif file allowing for the manual annotation wit LabelMe; segments the labelled image; describe that segmented image for an evaluation of their relevance to train the model; culls them to suit the model training requirements; and finally apply the model training.</p>
-<section id="section" class="level4">
-<h4 class="anchored" data-anchor-id="section">1.</h4>
+<section id="path-definition" class="level4">
+<h4 class="anchored" data-anchor-id="path-definition">1. Path definition</h4>
 <p>We define the path of the project, and refer the correct python scripts containing the functions that are automatically called when running dependencies.</p>
 <div id="cell-3" class="cell">
 <details open="" class="code-fold">
@@ -230,8 +230,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="section-1" class="level4">
-<h4 class="anchored" data-anchor-id="section-1">2.</h4>
+<section id="zip-folder-extraction-only-if-working-with-planet-api" class="level4">
+<h4 class="anchored" data-anchor-id="zip-folder-extraction-only-if-working-with-planet-api">2. Zip folder extraction (only if working with Planet API)</h4>
 <p>If we were to follow exactly the procedure and download the zip file from Planet, we would need to use the extract_zip function as demostrated in the following code section. It would extract the file called “composite.tif” obtained from the planet order and downloaded into the zip file in our “raw_images” folder. It will render a tif file and will rename it with the date_aoi.tif outside the zip file.<br>
 However, for this tutorial, we provide in the link from the “Getting started” section to download the example image. This image is in the .tif format and will be manipulated further in the section n°3.</p>
 <div id="cell-5" class="cell">
@@ -244,17 +244,17 @@ However, for this tutorial, we provide in the link from the “Getting started�
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the path to your zip file</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>zip_path <span class="op">=</span> <span class="st">"images/raw_images"</span> </span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#AFUN: should this path be training/raw_images? </span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#If so, need to be careful where we download the image zip file. Might need to adaot this. </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#If so, need to be careful where we download the image zip file. Might need to adapt this. </span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Run extraction</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.planet_utils.extract_zip(zip_path)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="section-2" class="level4">
-<h4 class="anchored" data-anchor-id="section-2">3.</h4>
+<section id="padded-png-image-preparation" class="level4">
+<h4 class="anchored" data-anchor-id="padded-png-image-preparation">3. Padded PNG image preparation</h4>
 <p>We will now transform the example raw tif image into a usable png for future steps. It creates a padded png image to exactly match the size dividable by the stride and tile size.<br>
-Caution that you need to define the config file called “config_train_Drive_UN” as instructed to make sure it matches your paths and runs everything smoothly.</p>
+Caution that you need to define the config file called “config_train_Drive_UN.yaml” as instructed to make sure it matches your paths and runs everything smoothly.</p>
 <div id="cell-7" class="cell">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
@@ -274,15 +274,15 @@ Processed 1/1 images</code></pre>
 </div>
 </div>
 </section>
-<section id="section-3" class="level4">
-<h4 class="anchored" data-anchor-id="section-3">4.</h4>
+<section id="manual-labelling" class="level4">
+<h4 class="anchored" data-anchor-id="manual-labelling">4. Manual Labelling</h4>
 <p>Once the .png image is created, as we are training the model, we need to label the training image. In order to do so, you need to use LabelMe.<br>
 LabelMe is called in your terminal, manually typing “labelme”.<br>
 XXXXXXX insert image of label me opening, to make sure they can open it via the terminal?</p>
 <p>You have to then annotate the waterholes on your padded png image. This creates at the end a .json file with all my bounding boxes definitions. Those labels will be needed in the next step to segment the image and the corresponding labels for training purposes. XXXXXXXX insert gif of manual label me annotation?</p>
 </section>
-<section id="section-4" class="level4">
-<h4 class="anchored" data-anchor-id="section-4">5.</h4>
+<section id="segmentation" class="level4">
+<h4 class="anchored" data-anchor-id="segmentation">5. Segmentation</h4>
 <p>Once the whole manual annotation is done, save the outputs, and come back to this script to run the segmentation of the padded png image you just labelled.</p>
 <div id="cell-10" class="cell">
 <details open="" class="code-fold">
@@ -296,8 +296,8 @@ XXXXXXX insert image of label me opening, to make sure they can open it via the 
 </details>
 </div>
 </section>
-<section id="section-5" class="level4">
-<h4 class="anchored" data-anchor-id="section-5">6.</h4>
+<section id="evalutaion-of-the-segmentation" class="level4">
+<h4 class="anchored" data-anchor-id="evalutaion-of-the-segmentation">6. Evalutaion of the segmentation</h4>
 <p>After the segmentation, we evaluate the result of the segmentation and production of material to train the model using the “train.describe” function. Run the bellow cell to describe the results of segmented images.</p>
 <div id="cell-12" class="cell">
 <details class="code-fold">
@@ -310,51 +310,24 @@ XXXXXXX insert image of label me opening, to make sure they can open it via the 
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#describe the created segmented images: </span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>counting_wh.train.describe(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Config path: D:\Waterholes_project\counting_waterholes\training_v4\output\images</code></pre>
-</div>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg ansi-bold">KeyboardInterrupt</span>                         Traceback (most recent call last)
-Cell <span class="ansi-green-fg ansi-bold">In[2], line 8</span>
-<span class="ansi-green-fg">      5</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span> <span style="font-weight:bold;color:rgb(0,0,255)">counting_boats</span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">train</span>
-<span class="ansi-green-fg">      7</span> <span style="font-style:italic;color:rgb(95,135,135)">#describe the created segmented images: </span>
-<span class="ansi-green-fg ansi-bold">----&gt; 8</span> <span class="ansi-yellow-bg">counting_boats</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">train</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">describe</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">config_train_Drive.yaml</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg ansi-bold">c:\Users\fossatia\Documents\Waterholes_project\counting_waterholes\counting_boats\train.py:216</span>, in <span class="ansi-cyan-fg">describe</span><span class="ansi-blue-fg ansi-bold">(config)</span>
-<span class="ansi-green-fg">    213</span> lab_path <span style="color:rgb(98,98,98)">=</span> os<span style="color:rgb(98,98,98)">.</span>path<span style="color:rgb(98,98,98)">.</span>join(labdir, lab)
-<span class="ansi-green-fg">    215</span> <span style="font-style:italic;color:rgb(95,135,135)"># Check if file is empty first (file size = 0)</span>
-<span class="ansi-green-fg ansi-bold">--&gt; 216</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span class="ansi-yellow-bg">os</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">path</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">getsize</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">lab_path</span><span class="ansi-yellow-bg">)</span> <span style="color:rgb(98,98,98)">==</span> <span style="color:rgb(98,98,98)">0</span>:
-<span class="ansi-green-fg">    217</span>     num_tiles_no_labels <span style="color:rgb(98,98,98)">+</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(98,98,98)">1</span>
-<span class="ansi-green-fg">    218</span>     <span style="font-weight:bold;color:rgb(0,135,0)">continue</span>
-
-File <span class="ansi-green-fg ansi-bold">c:\Users\fossatia\AppData\Local\miniconda3\envs\Boats\lib\genericpath.py:50</span>, in <span class="ansi-cyan-fg">getsize</span><span class="ansi-blue-fg ansi-bold">(filename)</span>
-<span class="ansi-green-fg">     48</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span> <span style="color:rgb(0,0,255)">getsize</span>(filename):
-<span class="ansi-green-fg">     49</span> <span style="color:rgb(188,188,188)">    </span><span style="font-style:italic;color:rgb(175,0,0)">"""Return the size of a file, reported by os.stat()."""</span>
-<span class="ansi-green-fg ansi-bold">---&gt; 50</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">os</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">stat</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">filename</span><span class="ansi-yellow-bg">)</span><span style="color:rgb(98,98,98)">.</span>st_size
-
-<span class="ansi-red-fg ansi-bold">KeyboardInterrupt</span>: </pre>
-</div>
-</div>
 </div>
 </section>
-<section id="section-6" class="level4">
-<h4 class="anchored" data-anchor-id="section-6">7.</h4>
+<section id="culling" class="level4">
+<h4 class="anchored" data-anchor-id="culling">7. Culling</h4>
 <p>Before proceeding to the training of the model, we need to apply the cull command which will remove images with no labels until 10% of the training set has no labels. This is a recommended procedure from Yolo to maintain efficient model training parameters. This has to be done post segmentation as we don’t know prior the the amount.</p>
 <div id="cell-14" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#describe the created segmented images: </span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>counting_wh.train.cull_AF(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#describe the created segmented images: </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>counting_wh.train.cull_AF(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analyzing label files in: D:\Waterholes_project\counting_waterholes\training_v4\output\labels\train
@@ -377,18 +350,18 @@ SUCCESS: Empty labels now make up 10% or less of the dataset.</code></pre>
 </div>
 </div>
 </section>
-<section id="section-7" class="level4">
-<h4 class="anchored" data-anchor-id="section-7">8.</h4>
+<section id="folder-set-up" class="level4">
+<h4 class="anchored" data-anchor-id="folder-set-up">8. Folder set-up</h4>
 <p>Now that we have less than 10% of the images unlabelled, we can train the model, but first let’s reorganise the folders to be properly used in the model.</p>
 <div id="cell-16" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>counting_wh.train.reorganize_folders(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>counting_wh.train.reorganize_folders(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Copying from D:\Waterholes_project\counting_waterholes\training_v4\output\images\val to D:\Waterholes_project\counting_waterholes\training_v4\train\val\images
@@ -414,21 +387,21 @@ New structure:
 </div>
 </div>
 </section>
-<section id="section-8" class="level4">
-<h4 class="anchored" data-anchor-id="section-8">9.</h4>
+<section id="model-training" class="level4">
+<h4 class="anchored" data-anchor-id="model-training">9. Model training</h4>
 <p>The following code provides you with the line of code to run in yolo in order to train a neural network model. Before doing so, modifiy the directory of the yolo model training path in the config file called “config_train_Drive_UN.yaml”.</p>
 <p>Then, run this code which provides you with the command to excecute in the cmd terminal of the Yolov5.<br>
 XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like when it’s training? Maybe a screen shot and a gif when it trains?</p>
 <div id="cell-18" class="cell">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#describe the created segmented images: </span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>counting_wh.train.train(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#describe the created segmented images: </span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>counting_wh.train.train(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
@@ -441,20 +414,19 @@ XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like w
 <div id="cell-20" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>python train.py <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">8</span> <span class="op">--</span>epochs <span class="dv">150</span> <span class="op">--</span>data config_train_Drive_UN.yaml <span class="op">--</span>weights yolov5s.pt <span class="op">--</span>cache disk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>python train.py <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">8</span> <span class="op">--</span>epochs <span class="dv">150</span> <span class="op">--</span>data config_train_Drive_UN.yaml <span class="op">--</span>weights yolov5s.pt <span class="op">--</span>cache disk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>So it actually seems that it runs automatically with the function train but we do not see any progression… Prefer for now to run it manually in the cmd of the yolov5 folder.</p>
-<p>Changed the cache to the SSD drive we are using as we are limited in the storage available locally. Needed to set the project to the SSD which saves the outputs and doesn’t increase the C: storage usage.</p>
-<p>Need to actually create the D:/temp and D:/yolo_run on your Drive or external directory</p>
+<p>As we were limited in storage, I ran the model on the SSD. To do so, I changed the cache to the SSD drive we are using as we are limited in the storage available locally. Needed to set the project to the SSD which saves the outputs and doesn’t increase the C: storage usage.</p>
+<p>Need to actually create the D:/temp and D:/yolo_run on your Drive or external directory as follow:</p>
 <div id="cell-22" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TMPDIR<span class="op">=</span>D:<span class="op">/</span>temp</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TEMP<span class="op">=</span>D:<span class="op">/</span>temp</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TMP<span class="op">=</span>D:<span class="op">/</span>temp</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> KMP_DUPLICATE_LIB_OK<span class="op">=</span>TRUE </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>python C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>train.py <span class="op">--</span>device cuda:<span class="dv">0</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">4</span> <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>epochs <span class="dv">50</span> <span class="op">--</span>data C:\Users\fossatia\Documents\Waterholes_project\counting_waterholes\config_train_Drive.yaml <span class="op">--</span>weights C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>runs<span class="op">/</span>train<span class="op">/</span>exp3<span class="op">/</span>weights<span class="op">/</span>best.pt <span class="op">--</span>cache <span class="va">False</span> <span class="op">--</span>project D:<span class="op">/</span>yolo_runs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TMPDIR<span class="op">=</span>D:<span class="op">/</span>temp</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TEMP<span class="op">=</span>D:<span class="op">/</span>temp</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TMP<span class="op">=</span>D:<span class="op">/</span>temp</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> KMP_DUPLICATE_LIB_OK<span class="op">=</span>TRUE </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>python C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>train.py <span class="op">--</span>device cuda:<span class="dv">0</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">4</span> <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>epochs <span class="dv">50</span> <span class="op">--</span>data C:\Users\fossatia\Documents\Waterholes_project\counting_waterholes\config_train_Drive.yaml <span class="op">--</span>weights C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>runs<span class="op">/</span>train<span class="op">/</span>exp3<span class="op">/</span>weights<span class="op">/</span>best.pt <span class="op">--</span>cache <span class="va">False</span> <span class="op">--</span>project D:<span class="op">/</span>yolo_runs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The set KMP_DUPLICATE_LIB_OK=TRUE is not recommended on the error command… I tried to google it and it seems we should force an install of the Nomkl using ‘conda install nomkl –channel conda-forge’. However, by doing so, dependencies might be altered. To be checked.</p>

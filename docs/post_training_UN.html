@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
   <div class="abstract">
     <div class="block-title">Abstract</div>
-    <p>Notebook to proceed with the following steps once the yolo model has been trained.</p>
+    <p>Testing of the YOLOv5 neural network model that has been trained.</p>
   </div>
 </div>
 
@@ -214,55 +214,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Notebook to proceed with the following steps once the yolo model has been trained. Will run manually here sequences of the classify.py and testing.py scripts.</p>
-<p>Ideally, the runing of this section can be done by calling modes that run pipelines out of Charlie’s code. Let’s see how much of those automatisations can be used here. Here is his comment from the testing.py file:</p>
-<p>Utility functions for training/validation pipeline.<br>
-Includes:</p>
-<pre><code>- prepare: Prepare the images for segmentation
-- segment: Segment the images
-- run_detection: Run the YoloV5 detection
-- backwards_annotation: Generate labelme style annotations from the classifications
-- compare_detections_to_ground_truth: Match up labels and detections, compare them, and save the results
-- confusion_matrix: Summarize the results of the comparison</code></pre>
-<p>Load first all the configs and required packs:</p>
-<div id="cell-4" class="cell">
+<p>This script will guide you through the steps to test and evaluate the accuracy of the trained model. More specifically, it prepares the padded png image for manual labelling, segments the labelled image, runs the detection on the same non-labelled image and backward annotates it, compares your manual annotation to the detected annotation, and renders a confusion matrix to evaluate the model performance.</p>
+<section id="paths-definition-and-set-up" class="level4">
+<h4 class="anchored" data-anchor-id="paths-definition-and-set-up">1. Paths definition and set-up</h4>
+<div id="cell-3" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> argparse</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os.path <span class="im">as</span> path</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.cluster</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.spatial</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageDraw</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> ConfusionMatrixDisplay</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> stat</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils.config <span class="im">import</span> cfg</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> image_cutting_support <span class="im">as</span> ics</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> heatmap <span class="im">as</span> hm</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.classifier</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># cluster, process_clusters, read_classifications, pixel2latlong</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the project root to sys.path (adjust as needed)</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>sys.path.append(os.path.abspath(<span class="st">"counting_waterholes"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> argparse</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os.path <span class="im">as</span> path</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.cluster</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.spatial</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageDraw</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> ConfusionMatrixDisplay</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> stat</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils.config <span class="im">import</span> cfg</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> image_cutting_support <span class="im">as</span> ics</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh.wh_utils <span class="im">import</span> heatmap <span class="im">as</span> hm</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.classifier</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the project root to sys.path (adjust as needed)</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>sys.path.append(os.path.abspath(<span class="st">"Waterholes_project/WaterholeDetection_UN-Handbook"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>c:\Users\fossatia\AppData\Local\miniconda3\envs\Boats\lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
@@ -274,26 +265,33 @@ Model summary: 157 layers, 7015519 parameters, 0 gradients, 15.8 GFLOPs
 Adding AutoShape... </code></pre>
 </div>
 </div>
-<p>Then we can select manually which function we want to run. First, from the testing aoi tif file, we need to prepare the padded png image using the testing.prepare():</p>
-<div id="cell-6" class="cell">
+</section>
+<section id="preparation-of-the-padded-png-image" class="level4">
+<h4 class="anchored" data-anchor-id="preparation-of-the-padded-png-image">2. Preparation of the padded PNG image</h4>
+<p>Directly from the tif file, this step prepares the padded png image for future steps.</p>
+<div id="cell-5" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run preparation:</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.prepare(<span class="st">"counting_waterholes/testing"</span>, <span class="st">"config_test_GPU.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.prepare(<span class="st">"Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Then I need to use the created png to label it with labelme. This will allow us to compare my annotation to the detection of the trained model i.e.&nbsp;test the model.</p>
-<p>Once the manual annotation is done, we can apply the segmentation used from the testing.segment():</p>
-<div id="cell-9" class="cell">
+</section>
+<section id="manual-annotation" class="level4">
+<h4 class="anchored" data-anchor-id="manual-annotation">3. Manual annotation</h4>
+<p>Annotate manually the created png with labelme as in training step. Refer to the previous tab for detailed instructions on how to use labelme. Make sure to use the same categories as the training step. This will allow us to compare my annotation to the detection of the trained model i.e.&nbsp;test the model.</p>
+</section>
+<section id="segmentation-of-the-annotated-image" class="level4">
+<h4 class="anchored" data-anchor-id="segmentation-of-the-annotated-image">4. Segmentation of the annotated image</h4>
+<p>Once the manual annotation is done, we can apply the segmentation. Note that this segmentation doesn’t split 20% of the images for the model validation, meaning all segmented images will be used for the testing.</p>
+<div id="cell-8" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run segmentation without spliting 80% of the images for validation!</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.segment(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run segmentation without spliting 80% of the images for validation!</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.segment(<span class="vs">r"Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Cropping Image: D:/Waterholes_project/counting_waterholes/testing\./pngs\20240204_mimal_test.png
@@ -349,55 +347,64 @@ Segregating by image...
 Segregating by image...</code></pre>
 </div>
 </div>
-<p>Using those segmented labelled images, we can run the detection of waterholes using the trained model, and compare my label with the detection of the model.</p>
+</section>
+<section id="waterholes-detection-with-the-trained-model" class="level4">
+<h4 class="anchored" data-anchor-id="waterholes-detection-with-the-trained-model">4. Waterholes detection with the trained model</h4>
+<p>Using those segmented labelled images, we can run the detection of waterholes using the trained model, and compare my manual label with the detection of the model.</p>
 <p>Debugging section to recognise and work well with the GPU:</p>
-<p>Note to user: Need to update the torchvision to match the cuda (GPU) version. using the ‘nvidia-smi’ command, you get the cuda version (my case: 11) so I need to get a version of torch and torchaudio with to 11.xx. Need to ‘pip uninstall torch torchvision’, and then install the correct version, in my case: ‘pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 –extra-index-url https://download.pytorch.org/whl/cu113’<br>
+<p>Note to user: If you are running on a GPU, you need to update the torchvision to match the cuda (GPU) version. Using the ‘nvidia-smi’ command, you get your cuda version (in my case: 11) so I need to get a version of torch and torchaudio as 11.xx.<br>
+Need to ‘pip uninstall torch torchvision’, and then install the correct version, in my case: ‘pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 –extra-index-url https://download.pytorch.org/whl/cu113’<br>
 Other version to be found on this website: https://pytorch.org/get-started/previous-versions/</p>
-<p>The testing.segment function and run_detection work to use the segmented images folders grouped per date. left as it is for now but just something to bear in mind!</p>
-<div id="cell-14" class="cell">
+<p>The testing.segment function and run_detection work to use the segmented images folders grouped per date. Left as it is for now but just something to bear in mind!</p>
+<div id="cell-13" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check of the GPU found or not?</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>torch.cuda.is_available()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check of the GPU found or not?</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>torch.cuda.is_available()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>True</code></pre>
 </div>
 </div>
+<p>The GPU is found, so we can proceed with the detection:</p>
 <div id="cell-15" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run detection on my testing </span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.run_detection(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run detection on my testing image set:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.run_detection(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Copy of the order command that is run run to yolo cmd by the function run_detectionpage. Just in order to debug and be informative. Do not run.</p>
+<p>Copy of the order command that is run run to yolo cmd automatically by the function run_detection. Just for you to check and have the information in order to debug or adapt to your computational power. Do not run.</p>
 <div id="cell-17" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>python C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>detect.py <span class="op">--</span>imgsz <span class="dv">416</span> <span class="op">--</span>save<span class="op">-</span>txt <span class="op">--</span>save<span class="op">-</span>conf <span class="op">--</span>weights C:<span class="op">/</span>Users<span class="op">/</span>fossatia<span class="op">/</span>Documents<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>runs<span class="op">/</span>train<span class="op">/</span>exp3<span class="op">/</span>weights<span class="op">/</span>best.pt <span class="op">--</span>source D:\\Waterholes_project\\counting_waterholes\\testing\\segmented_images\\<span class="dv">0</span><span class="er">4_02_2024</span>\\<span class="dv">20240204</span><span class="er">_mimal_test</span> <span class="op">--</span>device cuda:<span class="dv">0</span> <span class="op">--</span>nosave <span class="op">--</span>conf<span class="op">-</span>thres <span class="fl">0.15</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>python C:<span class="op">/</span>Users<span class="op">/</span>adria<span class="op">/</span>OneDrive <span class="op">-</span> AdrianoFossati<span class="op">/</span>Documents<span class="op">/</span>MASTER Australia<span class="op">/</span>RA<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>detect.py <span class="op">--</span>imgsz <span class="dv">416</span> <span class="op">--</span>save<span class="op">-</span>txt <span class="op">--</span>save<span class="op">-</span>conf <span class="op">--</span>weights C:<span class="op">/</span>Users<span class="op">/</span>adria<span class="op">/</span>OneDrive <span class="op">-</span> AdrianoFossati<span class="op">/</span>Documents<span class="op">/</span>MASTER Australia<span class="op">/</span>RA<span class="op">/</span>Waterholes_project<span class="op">/</span>yolov5<span class="op">/</span>runs<span class="op">/</span>train<span class="op">/</span>exp3<span class="op">/</span>weights<span class="op">/</span>best.pt <span class="op">--</span>source D:\\Waterholes_project\\WaterholeDetection_UN<span class="op">-</span>Handbook\\testing\\segmented_images\\<span class="dv">0</span><span class="er">4_02_2024</span>\\<span class="dv">20240204</span><span class="er">_mimal_test</span> <span class="op">--</span>device cuda:<span class="dv">0</span> <span class="op">--</span>nosave <span class="op">--</span>conf<span class="op">-</span>thres <span class="fl">0.15</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Use the detection output of the model on my testing images to produce labelme style annotation using the backwards_annotation():</p>
+</section>
+<section id="backward-annotation" class="level4">
+<h4 class="anchored" data-anchor-id="backward-annotation">5. Backward annotation</h4>
+<p>We can now use the detection output of the model on my testing images to produce labelme style annotation.</p>
 <div id="cell-19" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#run the annotation of the images using the detection of the model:</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.backwards_annotation_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.backwards_annotation_AF(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Then finally, compare the detected WH with my labeled WH:</p>
+</section>
+<section id="ground-truth-comparison" class="level4">
+<h4 class="anchored" data-anchor-id="ground-truth-comparison">6. Ground truth comparison</h4>
+<p>Then finally, we can compare the model-detected waterholes with the ones you manually labeled.</p>
 <div id="cell-21" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#comparison of my labels with the detected WH:</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.compare_detections_to_ground_truth(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.compare_detections_to_ground_truth(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Label directory D:/Waterholes_project/counting_waterholes/testing_v3\./labels\05_02_2025\050225_NT does not exist, skipping image...
@@ -405,46 +412,54 @@ raw_images folder D:/Waterholes_project/counting_waterholes/testing_v3\./raw_ima
 Could not parse date from 050225_NT.csv</code></pre>
 </div>
 </div>
-<p>Create the confusion matrix which summarises the results:</p>
+</section>
+<section id="confusion-matrix" class="level4">
+<h4 class="anchored" data-anchor-id="confusion-matrix">7. Confusion matrix</h4>
+<p>Create the confusion matrix which summaries the performance of the model.</p>
 <div id="cell-23" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the confusion matrix</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.confusion_matrix_AF(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.confusion_matrix_AF(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Possible to process a single images by comparing the detections and labels for a single image, used in a function but not usefull by hand.</p>
+</section>
+<section id="extra-testing-outputs" class="level4">
+<h4 class="anchored" data-anchor-id="extra-testing-outputs">8. Extra testing outputs</h4>
+<p>I. Possible to process a single images by comparing the detections and labels for a single image.</p>
 <div id="cell-25" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #create the confusion matrix</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_wh.wh_utils.testing</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># counting_wh.wh_utils.testing.process_image_AF(r"D:\Waterholes_project\counting_waterholes\testing_v3\classifications", r"D:/Waterholes_project/counting_waterholes/testing_v3/labels", "config_test_Drive.yaml")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.process_image_AF(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing_v3</span><span class="er">\</span><span class="vs">classifications"</span>, <span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing_v3/labels"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Compare the counts one by one:</p>
+<ol start="2" type="I">
+<li>Possible to compare the result of single waterhole detection versus annotation.</li>
+</ol>
 <div id="cell-27" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#comparison labelled vs detected WH:</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.waterholes_count_compare(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.waterholes_count_compare(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing_v3"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
+<section id="global-image-generation" class="level4">
+<h4 class="anchored" data-anchor-id="global-image-generation">9. Global image generation</h4>
 <p>Now we want to plot the waterholes on the images. To do that, I need first to stich the training images together:</p>
 <div id="cell-29" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> datetime</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.stitch_PNGs</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.stitch_PNGs.stitch(<span class="vs">r"D:</span><span class="dv">\W</span><span class="vs">aterholes_project</span><span class="er">\</span><span class="vs">counting_waterholes</span><span class="ch">\t</span><span class="vs">esting_v3</span><span class="dv">\s</span><span class="vs">titching"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> datetime</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.stitch_PNGs</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.stitch_PNGs.stitch(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook</span><span class="ch">\t</span><span class="vs">esting_v3</span><span class="dv">\s</span><span class="vs">titching"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Max x: 92, Max y: 60
@@ -455,14 +470,15 @@ Saved stitched image to D:\Waterholes_project\counting_waterholes\testing_v3\sti
 <div id="cell-31" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot WH using that stiched image:</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.plot_waterholes(<span class="vs">r"D:/Waterholes_project/counting_waterholes/testing_v3"</span>, <span class="st">"config_test_Drive.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot WH using that stitched image:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.testing</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.testing.plot_waterholes(<span class="vs">r"C:/Users/adria/OneDrive - AdrianoFossati/Documents/MASTER Australia/RA/Waterholes_project/WaterholeDetection_UN-Handbook/testing_v3"</span>, <span class="st">"config_test_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
