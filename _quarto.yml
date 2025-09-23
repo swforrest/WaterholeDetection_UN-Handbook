@@ -4,6 +4,7 @@ project:
 
 website:
   title: "Waterhole Detection - UN Handbook"
+  favicon: icon.png
   navbar:
     left:
       - href: index.qmd
@@ -11,7 +12,7 @@ website:
       - href: about.qmd
         text: Getting Started
       - href: S2_download_GEE.ipynb
-        text: Download GEE Data
+        text: Download Sentinel-2 Images
       - href: From_tif_to_trainable_UN.ipynb
         text: Training
       - href: post_training_UN.ipynb
