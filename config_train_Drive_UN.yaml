@@ -1,6 +1,6 @@
 #-------------------
 #All absolute paths you need to change are located at the top of this file
-#All the other ones should be relative paths and thus do not need to be created in your folder. 
+#All the other paths should be relative and thus do not need to be modified in this configuration file or created in your folder. 
 
 
 #-------------------
@@ -35,11 +35,11 @@
 #-------------------
 ##General paths## 
 
-#MODIFY ALL THOSE PATHS TO YOUR ABSOLUTE PATHS:
-#Unfortunately, the functions in the training workflow require quite a lot of absolute paths. 
-#Reccommended to change outdir for each run if using different images/params!!!
+#REPLACE ALL "your_project_path" By YOUR ABSOLUTE PATHS TO THE PROJECT DIRECTORY:
+#Recommended to change outdir for each run if using different images/params!!!
+
 #Root of the repository:
-proj_root: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook
+proj_root: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook
 #Yolo directory:
 yolo_dir: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\yolov5
 #AF: Using the simple model weights provided by yolo itself. 
@@ -52,23 +52,23 @@ weights: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\
 #In this section, modify 'C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook' by your training path. 
 #What follows the '\training' should remain intact.  
 #Location of your tif files for the training workflow:
-raw_images: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\raw_images 
+raw_images: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\raw_images 
 #If using manually the extract_zip() need to define the tif directory here. 
 #Could be the same as raw_images for a uniform workflow:
-tif_dir: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\raw_images
+tif_dir: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\raw_images
 #Output of the pre-training processes: 
-output_dir: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\output 
+output_dir: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\output 
 
 #Creating new paths to manipulate the output of the segmentation. 
 #The structure of the segmentation's output does not match the train one. Those are paths to reorganise it.
 #Modify these two with up to your training path only. 
 #replace 'D:\Waterholes_project\counting_waterholes\training' by your path. 
 #'\output\images\train' and '\output\labels\train' need to remain intact. 
-segmented_images : C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\output\images\train
-segmented_labels : C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\output\labels\train
+segmented_images : C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\output\images\train
+segmented_labels : C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\output\labels\train
 
 #Training material folder path
-training_path: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\training\train
+training_path: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\train
 
 #Labels classes. Strongly advice not to modify them and use ours.
 #Multiple functions are deisgned to work with those label classes. 
@@ -107,8 +107,8 @@ classifications: .\images\classifications
 
 #Training images path. 
 #If not working replace the .\ by your path. Example for me: 'D:\Waterholes_project\counting_waterholes\training'
-train: .\train\images
+train: training\output\images\train
 #Validation images path. Same debugging advice. 
-val: .train\val\images
+val: training\output\images\val
 
 ##End of the config file of training##

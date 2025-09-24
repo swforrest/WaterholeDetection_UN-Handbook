@@ -129,7 +129,7 @@ def segment(
     """
     
     cfg = parse_config(config)
-    print(cfg) #AF
+    #print(cfg) #AF
     # segment the images that have been prepared
     labels = [
         os.path.join(cfg["output_dir"], f)
@@ -204,7 +204,7 @@ def describe(
     """
     cfg = parse_config(config)
     # get the number of original images
-    imdirs = cfg["train"]
+    imdirs = os.path.join(cfg["proj_root"], cfg["train"])
     print("Config path:", imdirs)
     num_images = 0
     num_tiles = 0
