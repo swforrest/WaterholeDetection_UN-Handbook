@@ -107,8 +107,8 @@ classifications: .\images\classifications
 
 #Training images path. 
 #If not working replace the .\ by your path. Example for me: 'D:\Waterholes_project\counting_waterholes\training'
-train: training\output\images\train
+train: .\training\train\train\images
 #Validation images path. Same debugging advice. 
-val: training\output\images\val
+val: .\training\train\val\images
 
 ##End of the config file of training##
