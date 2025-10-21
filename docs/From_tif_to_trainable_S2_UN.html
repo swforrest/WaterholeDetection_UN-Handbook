@@ -143,7 +143,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Download Sentinel-2 Images</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./From_tif_to_trainable_UN.html" aria-current="page"> 
+    <a class="nav-link" href="./From_tif_to_trainable_UN.html"> 
 <span class="menu-text">Training</span></a>
   </li>  
   <li class="nav-item">
@@ -165,8 +165,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#path-definition" id="toc-path-definition" class="nav-link active" data-scroll-target="#path-definition">1. Path definition</a></li>
+  <li><a href="#padded-png-image-preparation" id="toc-padded-png-image-preparation" class="nav-link" data-scroll-target="#padded-png-image-preparation">2. Padded PNG image preparation</a></li>
+  <li><a href="#manual-labelling" id="toc-manual-labelling" class="nav-link" data-scroll-target="#manual-labelling">3. Manual Labelling</a></li>
+  <li><a href="#segmentation" id="toc-segmentation" class="nav-link" data-scroll-target="#segmentation">4. Segmentation</a></li>
+  <li><a href="#evaluation-of-the-segmentation" id="toc-evaluation-of-the-segmentation" class="nav-link" data-scroll-target="#evaluation-of-the-segmentation">5. Evaluation of the segmentation</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -216,116 +226,80 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>This script extracts the image from the .zip file downloaded from Planet; prepares the images creating the .png image from the .tif file allowing for the manual annotation wit LabelMe; segments the labelled image; describes that segmented image for an evaluation of their relevance to train the model; culls them to suit the model training requirements; and finally applies the model training.</p>
-<section id="path-definition" class="level4">
-<h4 class="anchored" data-anchor-id="path-definition">1. Path definition</h4>
+<section id="path-definition" class="level1">
+<h1>1. Path definition</h1>
 <p>We define the path of the project, and refer the correct python scripts containing the functions that are automatically called when running dependencies.</p>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the project root to sys.path (adjust as needed)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sys.path.append(os.path.abspath(<span class="st">"Waterholes_project/WaterholeDetection_UN-Handbook"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_wh.wh_utils as wh_utils</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_wh.train as wh_train</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh <span class="im">import</span> wh_utils</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> counting_wh <span class="im">import</span> train</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># import counting_wh.wh_utils.planet_utils as planet_utils</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the project root to sys.path (adjust as needed)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># sys.path.append(os.path.abspath("Waterholes_project/WaterholeDetection_UN-Handbook"))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="zip-folder-extraction-only-if-working-with-planet-api" class="level4">
-<h4 class="anchored" data-anchor-id="zip-folder-extraction-only-if-working-with-planet-api">2. Zip folder extraction (only if working with Planet API)</h4>
-<p>If we were to follow exactly the procedure and download the zip file from Planet, we would need to use the extract_zip function as demostrated in the following code section. It would extract the file called “composite.tif” obtained from the planet order and downloaded into the zip file in our “raw_images” folder. It will render a tif file and will rename it with the date_aoi.tif outside the zip file.<br>
-However, for this tutorial, we provide in the link from the “Getting started” section to download the example image. This image is in the .tif format and will be manipulated further in the section n°3.</p>
-<div id="cell-5" class="cell" data-execution_count="2">
-<details class="code-fold">
-<summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.wh_utils.planet_utils</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the path to your zip file</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>zip_path <span class="op">=</span> <span class="st">"images/raw_images"</span> </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#AFUN: should this path be training/raw_images? </span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#If so, need to be careful where we download the image zip file. Might need to adapt this. </span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Run extraction</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>counting_wh.wh_utils.planet_utils.extract_zip(zip_path)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">FileNotFoundError</span>                         Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[2], line 3</span>
-<span class="ansi-green-fg ansi-bold">      1</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">os</span>
-<span class="ansi-green-fg ansi-bold">      2</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">yaml</span>
-<span class="ansi-green-fg">----&gt; 3</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">counting_wh</span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">wh_utils</span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">planet_utils</span>
-<span class="ansi-green-fg ansi-bold">      5</span> <span style="font-style:italic;color:rgb(95,135,135)"># Define the path to your zip file</span>
-<span class="ansi-green-fg ansi-bold">      6</span> zip_path <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">images/raw_images</span><span style="color:rgb(175,0,0)">"</span> 
-
-File <span class="ansi-green-fg">~/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/counting_wh/wh_utils/planet_utils.py:19</span>
-<span class="ansi-green-fg ansi-bold">     17</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">yaml</span>
-<span class="ansi-green-fg ansi-bold">     18</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">json</span>
-<span class="ansi-green-fg">---&gt; 19</span> <span style="font-weight:bold;color:rgb(0,135,0)">from</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">config</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">import</span> cfg
-<span class="ansi-green-fg ansi-bold">     20</span> <span style="font-weight:bold;color:rgb(0,135,0)">from</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">dotenv</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">import</span> load_dotenv
-<span class="ansi-green-fg ansi-bold">     21</span> <span style="font-weight:bold;color:rgb(0,135,0)">from</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">import</span> spatial_helpers
-
-File <span class="ansi-green-fg">~/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/counting_wh/wh_utils/config.py:14</span>
-<span class="ansi-green-fg ansi-bold">     10</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">yaml</span>
-<span class="ansi-green-fg ansi-bold">     12</span> config_path <span style="color:rgb(98,98,98)">=</span> os<span style="color:rgb(98,98,98)">.</span>path<span style="color:rgb(98,98,98)">.</span>join(os<span style="color:rgb(98,98,98)">.</span>getcwd(), <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">config.yml</span><span style="color:rgb(175,0,0)">"</span>)
-<span class="ansi-green-fg">---&gt; 14</span> <span style="font-weight:bold;color:rgb(0,135,0)">with</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">config_path</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">r</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">)</span> <span style="font-weight:bold;color:rgb(0,135,0)">as</span> ymlfile:
-<span class="ansi-green-fg ansi-bold">     15</span>     cfg <span style="color:rgb(98,98,98)">=</span> yaml<span style="color:rgb(98,98,98)">.</span>load(ymlfile, Loader<span style="color:rgb(98,98,98)">=</span>yaml<span style="color:rgb(98,98,98)">.</span>FullLoader)
-<span class="ansi-green-fg ansi-bold">     16</span>     os<span style="color:rgb(98,98,98)">.</span>makedirs(cfg[<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">output_dir</span><span style="color:rgb(175,0,0)">"</span>], exist_ok<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">True</span>)
-
-<span class="ansi-red-fg">FileNotFoundError</span>: [Errno 2] No such file or directory: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/config.yml'</pre>
-</div>
-</div>
-</div>
-</section>
-<section id="padded-png-image-preparation" class="level4">
-<h4 class="anchored" data-anchor-id="padded-png-image-preparation">3. Padded PNG image preparation</h4>
+<section id="padded-png-image-preparation" class="level1">
+<h1>2. Padded PNG image preparation</h1>
 <p>We will now transform the example raw tif image into a usable png for future steps. It creates a padded png image to exactly match the size dividable by the stride and tile size.<br>
 Caution that you need to define the config file called “config_train_Drive_UN.yaml” as instructed to make sure it matches your paths and runs everything smoothly.<br>
 Use the prepare() function if you are using the Planet .tif file, and use the prepare_S2() function if you are using the Sentinel 2 file.</p>
-<div id="cell-7" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Run preparation of the tif files into png and renamed the tif. </span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Planet file:</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>counting_wh.train.prepare(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Sentinel 2 file: </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>train.prepare_S2(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Processed 1/1 images</code></pre>
-</div>
-</div>
-<div id="cell-8" class="cell" data-execution_count="2">
-<details open="" class="code-fold">
-<summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Sentinel 2 file: </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>counting_wh.train.prepare_S2(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Processed 1/1 images</code></pre>
+<pre><code>Doing gdal work...
+Done with gdal work for 2024-06_mimal_test_S2.tif
+New Width:  5408 New Height:  4160
+Processed 1/1 images</code></pre>
 </div>
 </div>
 </section>
-<section id="manual-labelling" class="level4">
-<h4 class="anchored" data-anchor-id="manual-labelling">4. Manual Labelling</h4>
+<section id="manual-labelling" class="level1">
+<h1>3. Manual Labelling</h1>
 <p>Once the .png image is created, as we are training the model, we need to label the training image. In order to do so, you need to use LabelMe.<br>
 LabelMe is called in your terminal, manually typing “labelme”.</p>
+<p>Ensure that the conda environment is activated, which will show on the left of your terminal line. If it says (base), you need to activate the conda environment first by typing “conda activate counting_waterholes”. After that, it should show (counting_waterholes) instead of (base), and you should be able to type “labelme” to open the LabelMe GUI.</p>
+<p>If labelme command does not work, you might need to install it first using pip. You can do this by running the following command in your terminal:</p>
+<pre><code>pip install labelme</code></pre>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Website_buildup/figures/labelme_wholescreen.png" class="img-fluid figure-img"></p>
 <figcaption>LabelMe Software Opening</figcaption>
 </figure>
 </div>
-<p>You have to then annotate the waterholes on your padded png image. This creates at the end a .json file with all my bounding boxes definitions. Those labels will be needed in the next step to segment the image and the corresponding labels for training purposes.</p>
+<p>Once you have LabelMe open, you can load the padded png image created in the previous step by clicking on “Open” and selecting the image file. The image should be in</p>
+<div id="cell-9" class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the config file</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'config_train_Drive_UN.yaml'</span>, <span class="st">'r'</span>) <span class="im">as</span> f:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    config <span class="op">=</span> yaml.safe_load(f)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract variables</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The padded image should be in: </span><span class="sc">{</span>config[<span class="st">'output_dir'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The padded image should be in: training/output</code></pre>
+</div>
+</div>
+<p>You can then annotate the waterholes on your padded png image. This will create a .json file with the bounding boxes definitions. You will need those labels in the next step to segment the image and the corresponding labels for training purposes.</p>
+<p>In the ‘Edit’ menu, select ‘Create Rectangle’ (or press the CTRL + R keys on Windows, or CMD + R on Mac) to start drawing rectangle bounding boxes around each waterhole in the image. Click to set a corner, and click again to create a rectangle around each waterhole. After drawing each rectangle, a dialog box will appear where you can enter the label for the object. Either type a new class label, or select an existing label and click ‘OK’. Repeat this process for all waterholes in the image.</p>
+<p>You can also edit existing annotations by selection ‘Edit Polygons’ from the toolbar (or Edit menu). We found this useful for transferring labels between months of imagery where most of the labels were the same, but some waterholes had changed class. To do that, the label file needs to be changed to name of the image you want to annotate, and then it should open when you open that image in LabelMe.</p>
+<p>When you have finished annotating all waterholes, save your annotations by selecting ‘Save’ from the ‘File’ menu (or pressing CTRL + S on Windows, or CMD + S on Mac). This will save the annotations in a .json file in the same directory as the image, with the same name as the image file.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Website_buildup/figures/labelme_labelling.png" class="img-fluid figure-img"></p>
@@ -333,58 +307,35 @@ LabelMe is called in your terminal, manually typing “labelme”.</p>
 </figure>
 </div>
 </section>
-<section id="segmentation" class="level4">
-<h4 class="anchored" data-anchor-id="segmentation">5. Segmentation</h4>
+<section id="segmentation" class="level1">
+<h1>4. Segmentation</h1>
 <p>Once the whole manual annotation is done, save the outputs, and come back to this script to run the segmentation of the padded png image you just labelled.</p>
-<div id="cell-14" class="cell" data-execution_count="3">
+<div id="cell-13" class="cell">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> counting_wh.train</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#segment the png images</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>counting_wh.train.segment(<span class="st">"config_train_Drive_UN.yaml"</span>, train_val_split<span class="op">=</span><span class="fl">0.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#segment the png images</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>train.segment(<span class="st">"config_train_Drive_UN.yaml"</span>, train_val_split<span class="op">=</span><span class="fl">0.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>['C:\\Users\\adria\\OneDrive - Queensland University of Technology\\FirstByte Waterholes WD\\WaterholeDetection_UN-Handbook\\training\\output\\2024-06_mimal_test_S2.json']
-Cropping Image: C:\Users\adria\OneDrive - Queensland University of Technology\FirstByte Waterholes WD\WaterholeDetection_UN-Handbook\training\output\2024-06_mimal_test_S2.png
+<pre><code>['training/output/2024-06_mimal_test_S2.json']
+Cropping Image: training/output/2024-06_mimal_test_S2.png
 [4160 5408    3]
 We will have:  1813  images maximum
 90.0% of images without labels will be removed</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Saving Segments: 100%|██████████| 1813/1813 [00:28&lt;00:00, 62.91it/s]</code></pre>
+<pre><code>Saving Segments: 100%|██████████| 1813/1813 [00:05&lt;00:00, 332.10it/s]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Skipped 851 images
+<pre><code>Skipped 868 images
 Empty 603 images</code></pre>
-</div>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg ansi-bold">FileExistsError</span>                           Traceback (most recent call last)
-Cell <span class="ansi-green-fg ansi-bold">In[3], line 8</span>
-<span class="ansi-green-fg">      5</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span> <span style="font-weight:bold;color:rgb(0,0,255)">counting_wh</span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">train</span>
-<span class="ansi-green-fg">      7</span> <span style="font-style:italic;color:rgb(95,135,135)">#segment the png images</span>
-<span class="ansi-green-fg ansi-bold">----&gt; 8</span> <span class="ansi-yellow-bg">counting_wh</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">train</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">segment</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">config_train_Drive_UN.yaml</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">train_val_split</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">0.8</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg ansi-bold">c:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\WaterholeDetection_UN-Handbook\counting_wh\train.py:170</span>, in <span class="ansi-cyan-fg">segment</span><span class="ansi-blue-fg ansi-bold">(config, train_val_split)</span>
-<span class="ansi-green-fg">    168</span> rand <span style="color:rgb(98,98,98)">=</span> np<span style="color:rgb(98,98,98)">.</span>random<span style="color:rgb(98,98,98)">.</span>rand()
-<span class="ansi-green-fg">    169</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> rand <span style="color:rgb(98,98,98)">&lt;</span> train_val_split:
-<span class="ansi-green-fg ansi-bold">--&gt; 170</span>     <span class="ansi-yellow-bg">os</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">rename</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">im</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">os</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">path</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">join</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">image_out</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">train</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">os</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">path</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">basename</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">im</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">    171</span>     os<span style="color:rgb(98,98,98)">.</span>rename(lab, os<span style="color:rgb(98,98,98)">.</span>path<span style="color:rgb(98,98,98)">.</span>join(label_out, <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">train</span><span style="color:rgb(175,0,0)">"</span>, os<span style="color:rgb(98,98,98)">.</span>path<span style="color:rgb(98,98,98)">.</span>basename(lab)))
-<span class="ansi-green-fg">    172</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
-
-<span class="ansi-red-fg ansi-bold">FileExistsError</span>: [WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\adria\\OneDrive - Queensland University of Technology\\FirstByte Waterholes WD\\WaterholeDetection_UN-Handbook\\training\\output\\images\\2024-06_mimal_test_S2_10_10.png' -&gt; 'C:\\Users\\adria\\OneDrive - Queensland University of Technology\\FirstByte Waterholes WD\\WaterholeDetection_UN-Handbook\\training\\output\\images\\train\\2024-06_mimal_test_S2_10_10.png'</pre>
-</div>
 </div>
 </div>
 </section>
-<section id="evalutaion-of-the-segmentation" class="level4">
-<h4 class="anchored" data-anchor-id="evalutaion-of-the-segmentation">6. Evalutaion of the segmentation</h4>
+<section id="evaluation-of-the-segmentation" class="level1">
+<h1>5. Evaluation of the segmentation</h1>
 <p>After the segmentation, we evaluate the result of the segmentation and production of material to train the model using the “train.describe” function. Run the bellow cell to describe the results of segmented images.</p>
-<div id="cell-16" class="cell" data-execution_count="4">
+<div id="cell-15" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -417,11 +368,10 @@ File <span class="ansi-green-fg ansi-bold">c:\Users\adria\OneDrive - AdrianoFoss
 <pre><code>(1, 752, 284925, {'1': 68585, '3': 38280, '2': 102515, '0': 75545}, 7250)</code></pre>
 </div>
 </div>
-</section>
 <section id="culling" class="level4">
 <h4 class="anchored" data-anchor-id="culling">7. Culling</h4>
 <p>Before proceeding to the training of the model, we need to apply the cull command which will remove images with no labels until 10% of the training set has no labels. This is a recommended procedure from Yolo to maintain efficient model training parameters. This has to be done post segmentation as we don’t know prior the the amount.</p>
-<div id="cell-18" class="cell" data-execution_count="5">
+<div id="cell-17" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -448,7 +398,7 @@ Number of empty labels is already below 10% threshold. No action needed.</code><
 <section id="folder-set-up" class="level4">
 <h4 class="anchored" data-anchor-id="folder-set-up">8. Folder set-up</h4>
 <p>Now that we have less than 10% of the images unlabelled, we can train the model, but first let’s reorganise the folders to be properly used in the model.</p>
-<div id="cell-20" class="cell" data-execution_count="6">
+<div id="cell-19" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -487,7 +437,7 @@ New structure:
 <p>The following code provides you with the line of code to run in yolo in order to train a neural network model. Before doing so, modifiy the directory of the yolo model training path in the config file called “config_train_Drive_UN.yaml”.</p>
 <p>Then, run this code which provides you with the command to excecute in the cmd terminal of the Yolov5.<br>
 XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like when it’s training? Maybe a screen shot and a gif when it trains?</p>
-<div id="cell-22" class="cell" data-execution_count="7">
+<div id="cell-21" class="cell" data-execution_count="7">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -507,13 +457,13 @@ XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like w
 </div>
 <p>python r”C:- Queensland University of TechnologyWaterholes WD/train.py” –device cpu –img 416 –batch 8 –workers 6 –epochs 100 –data r”C:- Queensland University of TechnologyWaterholes WD_UN-Handbook_train_Drive_UN.yaml” –weights r”C:- Queensland University of TechnologyWaterholes WD5s.pt” –save-period 50</p>
 <p>Comment from AF (08.09): Need to run it and see what it actually prints. Because I ran with the line bellow to train. So need to make sure what we advise to the user as well in term of batch size, img, workers epochs etc…</p>
-<div id="cell-25" class="cell">
+<div id="cell-24" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>python train.py <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">8</span> <span class="op">--</span>epochs <span class="dv">150</span> <span class="op">--</span>data config_train_Drive_UN.yaml <span class="op">--</span>weights yolov5s.pt <span class="op">--</span>cache disk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="cell-26" class="cell">
+<div id="cell-25" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>python train.py <span class="op">--</span>workers <span class="dv">2</span> <span class="op">--</span>img <span class="dv">416</span> <span class="op">--</span>batch <span class="dv">8</span> <span class="op">--</span>epochs <span class="dv">150</span> <span class="op">--</span>data <span class="st">"C:</span><span class="er">\</span><span class="st">Users</span><span class="ch">\a</span><span class="st">dria</span><span class="er">\</span><span class="st">OneDrive - AdrianoFossati</span><span class="er">\</span><span class="st">Documents</span><span class="er">\</span><span class="st">MASTER Australia</span><span class="er">\</span><span class="st">RA</span><span class="er">\</span><span class="st">Waterholes_project</span><span class="er">\</span><span class="st">WaterholeDetection_UN-Handbook</span><span class="er">\</span><span class="st">config_train_Drive_UN.yaml"</span> <span class="op">--</span>weights yolov5s.pt <span class="op">--</span>cache disk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -521,7 +471,7 @@ XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like w
 </div>
 <p>As we were limited in storage, I ran the model on the SSD. To do so, I changed the cache to the SSD drive we are using as we are limited in the storage available locally. Needed to set the project to the SSD which saves the outputs and doesn’t increase the C: storage usage.</p>
 <p>Need to actually create the D:/temp and D:/yolo_run on your Drive or external directory as follow:</p>
-<div id="cell-28" class="cell">
+<div id="cell-27" class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> TMPDIR<span class="op">=</span>D:<span class="op">/</span>temp</span>
@@ -535,6 +485,7 @@ XXXXXXXXXXXXXXX insert screenshot of the yoloy terminal and what it looks like w
 <p>End of this script.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

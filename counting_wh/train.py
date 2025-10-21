@@ -19,6 +19,7 @@ import typer
 import os
 import yaml
 import numpy as np
+import torch
 from  .wh_utils import image_cutting_support as ics
 
 app = typer.Typer()
@@ -264,23 +265,22 @@ def describe(
                     else:
                         class_counts[class_id] += 1
     # print the statistics
-    print("-" * 43)
-    print("| Training dataset statistics             |")
-    print("-" * 43)
-    print(f"| Number of original images: {num_images}            |")
-    print(f"| Number of tiles: {num_tiles}                   |")
-    print(f"| Number of labels: {len(all_labels)}                  |")
-    print(f"| Number of individual labels             |")
-    print(f"|   - Total: {num_labels}                         |")
-    print(f"|   - Per class:                      |")
+    width = 50
+    print("-" * width)
+    print(f"| {'Training dataset statistics':<{width-4}} |")
+    print("-" * width)
+    print(f"| {'Number of original images:':<30} {num_images:>15} |")
+    print(f"| {'Number of tiles:':<30} {num_tiles:>15} |")
+    print(f"| {'Number of labels:':<30} {len(all_labels):>15} |")
+    print(f"| {'Number of individual labels':<{width-4}} |")
+    print(f"|   {'- Total:':<28} {num_labels:>15} |")
+    print(f"|   {'- Per class:':<{width-4}} |")
     for class_id, count in class_counts.items():
-        print(
-            f"|       - Class {class_id}: {count} ({count/num_labels*100:.2f}%)        |"
-        )
-    print(
-        f"| Background Images: {num_tiles_no_labels} ({num_tiles_no_labels/num_tiles*100:.2f}%)      |"
-    )
-    print("-" * 43)
+        pct = count/num_labels*100
+        print(f"|       - Class {class_id}: {count:>6} ({pct:>5.2f}%)              |")
+    bg_pct = num_tiles_no_labels/num_tiles*100
+    print(f"| Background Images: {num_tiles_no_labels:>6} ({bg_pct:>5.2f}%)           |")
+    print("-" * width)
     return num_images, num_tiles, num_labels, class_counts, num_tiles_no_labels
 
 
@@ -591,6 +591,7 @@ if __name__ == "__main__":
 
 
 
+
 @app.command()
 def train(
     config: str = typer.Option("", help="Path to the config file"),
@@ -606,12 +607,29 @@ def train(
     """
     cfg = parse_config(config)
     # train the model on the images in cfg["output_dir"]
+
+    # Set the device to be used (GPU or CPU)
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():  # For Mac M1/M2/M3/M4
+        device = "mps"
+    else:
+        device = "cpu"
+    print(f"Using {device} device")
+
+    # if using MPS, set default tensor type to float32 to avoid potential issues
+    if torch.backends.mps.is_available():
+        # Set default tensor type for PyTorch
+        torch.set_default_dtype(torch.float32)
+        print('Set default tensor type to float32')
+
     # have to use system calls to train yolov5
-    command = f"{cfg['python']} {cfg['yolo_dir']}/train.py --device cuda:0 \
---img {cfg['TILE_SIZE']} --batch {cfg['BATCH_SIZE']} \
---workers {cfg['workers']} \
---epochs {cfg['EPOCHS']} --data {config} \
---weights {cfg['weights']} --save-period 50"
+    command = f"{cfg['python']} {cfg['yolo_dir']}/train.py --device {device} \
+    --img {cfg['TILE_SIZE']} --batch {cfg['BATCH_SIZE']} \
+    --workers {cfg['workers']} \
+    --epochs {cfg['EPOCHS']} --data {config} \
+    --weights {cfg['weights']} --save-period 50"
+    
     # print command in yellow:
     print(f"\033[93m{command}\033[0m")
     os.system(command)

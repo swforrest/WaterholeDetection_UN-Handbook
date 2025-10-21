@@ -12,9 +12,9 @@ Clone [YoloV5](https://github.com/ultralytics/yolov5). This is used for the Neur
 
 #### Python Dependencies
 
-It's recommended to install a conda-based package manager such as [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/).  
+It's recommended to install a conda-based package manager such as [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/). A helpful guide for setting up Miniconda can be found [here](https://eduand-alvarez.medium.com/setting-up-anaconda-on-your-windows-pc-6e39800c1afb).
 
-Running the following will then install all required dependencies (run only once to set the environment up):
+In the command line, running the following will then install all required dependencies (run only once to set the environment up):
 
 ```
 conda env create --file env.yaml
@@ -25,7 +25,7 @@ conda env create --file env.yaml
 To start working on this project, activate the environment with:
 
 ```
-conda activate Boats
+conda activate counting_waterholes
 ```
 
 #### Configurations
@@ -37,9 +37,9 @@ Modify configuration files to match your specific environment and research requi
 
 ### Running
 
-As mentionned, the whole pipeline flow designed by Charlie Turner for the boat detection, is not used here. You will need to run specific blocks of code in the respective jupyter notebooks of each stage of our workflow.  
+As mentioned, the whole pipeline flow designed by Charlie Turner for the boat detection, is not used here. You will need to run specific blocks of code in the respective jupyter notebooks of each stage of our workflow.  
 
-#### Images dowload
+#### Images download
 
 Using the notebook `planet_download.ipynb`, you will: 
 - Define Area of Interest (AOI)
@@ -75,7 +75,7 @@ Originally the repository had a whole section about the classifying process, whi
 There are some visualisation notebooks in the visualisation folder. These can be run to perform some visualisations of the data.
 The `plot_output` script is also a useful tool for visualising the output of the detection model on individual images. 
 
-All thos functions and modules were developped for the visualisation of Boats and was not adapted to waterholes by lack of time. 
+All those functions and modules were developped for the visualisation of Boats and was not adapted to waterholes by lack of time. 
 
 ### Acknowledgements
 
