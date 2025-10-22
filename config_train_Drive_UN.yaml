@@ -21,7 +21,7 @@
 #               train\
 #               val\
 #               moved_empty_images\           # removed labels to stay <10% of background images in the training
-#       raw_images\                           #Location of your tif files for the training workflow
+#       raw_images\                           # Location of your tif files for the training workflow
 #       train\
 #           train\
 #               images\
