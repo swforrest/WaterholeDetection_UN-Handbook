@@ -246,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="path-definition" class="level1">
 <h1>1. Path definition</h1>
 <p>We define the path of the project, and refer the correct python scripts containing the functions that are automatically called when running dependencies.</p>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -271,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We will now transform the example raw tif image into a usable png for future steps. It creates a padded png image to exactly match the size dividable by the stride and tile size.<br>
 Caution that you need to define the config file called “config_train_Drive_UN.yaml” as instructed to make sure it matches your paths and runs everything smoothly.<br>
 Use the prepare() function if you are using the Planet .tif file, and use the prepare_S2() function if you are using the Sentinel 2 file.</p>
-<div id="cell-5" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell" data-execution_count="3">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Sentinel 2 file: </span></span>
