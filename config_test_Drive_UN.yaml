@@ -23,7 +23,7 @@
 #-------------------
 ##General paths## 
 
-#MODIFY ALL THOSE PATHS TO YOUR ABSOLUTE PATHS:
+#MODIFY ALL THOSE PATHS TO YOUR ABSOLUTE PATHS: 
 
 #Yolo directory:
 yolo_dir: C:\Users\adria\OneDrive - AdrianoFossati\Documents\MASTER Australia\RA\Waterholes_project\yolov5
