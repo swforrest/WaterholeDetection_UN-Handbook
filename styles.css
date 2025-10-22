@@ -1,1 +1,6 @@
 /* css styles */
+/* Make large code/output blocks scrollable */
+pre, .cell-output, .cell-output-display {
+  max-height: 800px;   /* limit height */
+  overflow-y: auto;    /* vertical scroll */
+}
