@@ -137,7 +137,7 @@ def segment(
         for f in os.listdir(cfg["output_dir"])
         if f.endswith(".json")
     ]
-    print(labels)
+    print(f'Labels: {labels}')
     images = [l.replace(".json", ".png") for l in labels]
     label_out = os.path.join(cfg["output_dir"], "labels")
     image_out = os.path.join(cfg["output_dir"], "images")
@@ -174,6 +174,8 @@ def segment(
             os.rename(im, os.path.join(image_out, "val", os.path.basename(im)))
             os.rename(lab, os.path.join(label_out, "val", os.path.basename(lab)))
 
+    print(f'\nSaved segmented images to: {image_out} and labels to: {label_out}')
+
 
 @app.command()
 def describe(
@@ -205,65 +207,76 @@ def describe(
     """
     cfg = parse_config(config)
     # get the number of original images
-    imdirs = os.path.join(cfg["proj_root"], cfg["train"])
+    # imdirs = os.path.join(cfg["proj_root"], cfg["train"])
+    imdirs = os.path.join(cfg["proj_root"], cfg["output_dir"], "images") #SF
     print("Config path:", imdirs)
     num_images = 0
     num_tiles = 0
     num_labels = 0
     class_counts = {}
     num_tiles_no_labels = 0
-    imdirs=os.path.normpath(imdirs) #AF: handeled the itteration problem on the path of the folder. 
-    
-    for imdir in imdirs:
-        imdir=os.path.normpath(imdirs)
-        if not os.path.exists(imdir): #AF
-            raise FileNotFoundError(f"Directory not found: {imdir}") #AF
-        if os.path.exists(os.path.join(imdir, "train")):
-            imdir = os.path.join(imdir, "train")
-        all_images = [i for i in os.listdir(imdir) if i.endswith(".png")]
-        # unique_images = set([im[0 : im.find("_", 9)] for im in all_images]) #AF
-        unique_images = set([im[:im.replace('_', 'X', 1).find('_')] for im in all_images if im.count('_') >= 2])        #modified the unique image detection to match all possible naming of AOIs. Extract everzthing before the third _
-        num_images = len(unique_images)
-        num_tiles = len(all_images)
-        # get the number of labels
-        a = os.path.join(imdir, "..", "..", "labels", "train")
-        b = os.path.join(imdir, "..", "labels")
-        labdir = a if os.path.exists(a) else b
-        all_labels = [l for l in os.listdir(labdir) if l.endswith(".txt")]
-        # count number of lines in all the files
-        # for lab in all_labels:
-        #     with open(os.path.join(labdir, lab), "r") as f:
-        #         lines = f.readlines()
-        #         num_labels += len(lines)
-        #         if len(lines) == 0:
-        #             num_tiles_no_labels += 1
-        #         for line in lines:
-        #             class_id = line.split(" ")[0]
-        #             if class_id not in class_counts:
-        #                 class_counts[class_id] = 1
-        #             else:
-        #                 class_counts[class_id] += 1
-        #New version of it, AF:
-        # count number of lines in all the files
-        for lab in all_labels:
-            lab_path = os.path.join(labdir, lab)
+    imdirs=os.path.normpath(imdirs) #AF: handeled the iteration problem on the path of the folder. 
 
-            # Check if file is empty first (file size = 0)
-            if os.path.getsize(lab_path) == 0:
-                num_tiles_no_labels += 1
-                continue
-                
-            with open(lab_path, "r") as f:
-                lines = f.readlines()
-                num_labels += len(lines)
-                
-                # Only check content if file isn't empty                             
-                for line in lines:
-                    class_id = line.split(" ")[0]
-                    if class_id not in class_counts:
-                        class_counts[class_id] = 1
-                    else:
-                        class_counts[class_id] += 1
+    print(f"Number of image directories found: {len(imdirs)}")
+    print(f"Image directories: {imdirs}")
+    print(f"Are there duplicates? {len(imdirs) != len(set(imdirs))}")
+    
+    # for imdir in imdirs: # this was looping over the CHARACTERS in the string path, not the folders. SF
+    
+    imdir=os.path.normpath(imdirs)
+    if not os.path.exists(imdir): #AF
+        raise FileNotFoundError(f"Directory not found: {imdir}") #AF
+    if os.path.exists(os.path.join(imdir, "train")):
+        imdir = os.path.join(imdir, "train")
+    all_images = [i for i in os.listdir(imdir) if i.endswith(".png")]
+    # unique_images = set([im[0 : im.find("_", 9)] for im in all_images]) #AF
+    unique_images = set([im[:im.replace('_', 'X', 1).find('_')] for im in all_images if im.count('_') >= 2])        #modified the unique image detection to match all possible naming of AOIs. Extract everything before the third _
+    num_images = len(unique_images)
+    num_tiles = len(all_images)
+    # get the number of labels
+    a = os.path.join(imdir, "..", "..", "labels", "train")
+    b = os.path.join(imdir, "..", "labels")
+    labdir = a if os.path.exists(a) else b
+    all_labels = [labfile for labfile in os.listdir(labdir) if labfile.endswith(".txt")]
+
+    print(f"Label directory: {labdir}")  
+    
+    # count number of lines in all the files
+    # for lab in all_labels:
+    #     with open(os.path.join(labdir, lab), "r") as f:
+    #         lines = f.readlines()
+    #         num_labels += len(lines)
+    #         if len(lines) == 0:
+    #             num_tiles_no_labels += 1
+    #         for line in lines:
+    #             class_id = line.split(" ")[0]
+    #             if class_id not in class_counts:
+    #                 class_counts[class_id] = 1
+    #             else:
+    #                 class_counts[class_id] += 1
+
+    #New version of it, AF:
+    # count number of lines in all the files
+    for lab in all_labels:
+        lab_path = os.path.join(labdir, lab)
+
+        # Check if file is empty first (file size = 0)
+        if os.path.getsize(lab_path) == 0:
+            num_tiles_no_labels += 1
+            continue
+            
+        with open(lab_path, "r") as f:
+            lines = f.readlines()
+            num_labels += len(lines)
+            
+            # Only check content if file isn't empty                             
+            for line in lines:
+                class_id = line.split(" ")[0]
+                if class_id not in class_counts:
+                    class_counts[class_id] = 1
+                else:
+                    class_counts[class_id] += 1
+                        
     # print the statistics
     width = 50
     print("-" * width)
@@ -382,10 +395,14 @@ def cull_AF(
     from pathlib import Path 
 
     cfg = parse_config(config_path)
+
     # get the number of original images
-    labels_dir = Path(cfg["segmented_labels"])
-    images_dir = Path(cfg["segmented_images"])
-    
+    # labels_dir = Path(cfg["segmented_labels"])
+    # images_dir = Path(cfg["segmented_images"])
+
+    labels_dir = Path(cfg["proj_root"], cfg["output_dir"], "labels", "train")
+    images_dir = Path(cfg["proj_root"], cfg["output_dir"], "images", "train")
+
     # Create directories for moved files if they don't exist
     moved_labels_dir = labels_dir.parent / 'moved_empty_labels'
     moved_images_dir = images_dir.parent / 'moved_empty_images'
@@ -608,6 +625,7 @@ def train(
     cfg = parse_config(config)
     # train the model on the images in cfg["output_dir"]
 
+
     # Set the device to be used (GPU or CPU)
     if torch.cuda.is_available():
         device = "cuda"
@@ -623,6 +641,7 @@ def train(
         torch.set_default_dtype(torch.float32)
         print('Set default tensor type to float32')
 
+
     # have to use system calls to train yolov5
     command = f"{cfg['python']} {cfg['yolo_dir']}/train.py --device {device} \
     --img {cfg['TILE_SIZE']} --batch {cfg['BATCH_SIZE']} \
@@ -630,6 +649,22 @@ def train(
     --epochs {cfg['EPOCHS']} --data {config} \
     --weights {cfg['weights']} --save-period 50"
     
+    # # Save current directory
+    # original_dir = os.getcwd()
+
+    # # Change to yolo directory
+    # os.chdir(cfg['yolo_dir'])
+
+    # # Make config path absolute
+    # yolo_abs_path = os.path.abspath(os.path.join(original_dir, config))
+
+    # # have to use system calls to train yolov5
+    # command = f"{cfg['python']} {yolo_abs_path}/train.py --device {device} \
+    # --img {cfg['TILE_SIZE']} --batch {cfg['BATCH_SIZE']} \
+    # --workers {cfg['workers']} \
+    # --epochs {cfg['EPOCHS']} --data {config} \
+    # --weights {cfg['weights']} --save-period 50"
+
     # print command in yellow:
     print(f"\033[93m{command}\033[0m")
     os.system(command)

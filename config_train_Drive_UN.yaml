@@ -30,20 +30,20 @@
 #               images\
 #               labels\
 
-
-
 #-------------------
 ##General paths## 
 
 #REPLACE ALL "your_project_path" By YOUR ABSOLUTE PATHS TO THE PROJECT DIRECTORY:
 #Recommended to change outdir for each run if using different images/params!!!
 
-#Root of the repository:
+# Root of the project repository:
 proj_root: .
 #Yolo directory:
 yolo_dir: ../yolov5
+# yolo_dir: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/yolov5'
 #AF: Using the simple model weights provided by yolo itself. 
 weights: ../yolov5/yolov5s.pt
+# weights: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/yolov5/yolov5s.pt'
 
 
 #--------------------
@@ -64,8 +64,8 @@ output_dir: training/output
 #Modify these two with up to your training path only. 
 #replace 'D:\Waterholes_project\counting_waterholes\training' by your path. 
 #'\output\images\train' and '\output\labels\train' need to remain intact. 
-segmented_images : training/output/images/train
-segmented_labels : training/output/labels/train
+# segmented_images : training/output/images/train
+# segmented_labels : training/output/labels/train
 
 #Training material folder path
 training_path: training/train
@@ -88,15 +88,15 @@ cache: False
 
 #Various values and parameters of the model manipulation. 
 #To be checked/adapted when running it. 
-workers: 0
+workers: 4
 BATCH_SIZE: 8
-EPOCHS: 1
+EPOCHS: 10
 img_size: 416
 img_stride: 104
 TILE_SIZE: 416
 STRIDE: 104
 
-# training Dataset
+# Training Dataset
 path: .
 #manually labeled pngs and their corresponding json files:
 pngs: images
@@ -105,10 +105,10 @@ labels: labels
 #Classifications for the images
 classifications: images/classifications
 
-#Training images path. 
-#If not working replace the .\ by your path. Example for me: 'D:\Waterholes_project\counting_waterholes\training'
-train: training/train/train/images
-#Validation images path. Same debugging advice. 
-val: training/train/train/labels
+# Path to training images
+# These paths are referenced directly by YOLOv5 code, so they need to be absolute paths.
+train: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/train'
+# Path to validation images
+val: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/val'
 
-##End of the config file of training##
+## End of the config file of training ##
