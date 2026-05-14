@@ -12,9 +12,9 @@ website:
       - href: about.qmd
         text: Getting Started
       - href: S2_download_GEE.ipynb
-        text: Download Sentinel-2 Images
+        text: Download S2 (single AOI)
       - href: S2_download_GEE_random_sampling.ipynb
-        text: Download Sentinel-2 Images (Random Sampling)
+        text: Download S2 (Random AOIs)
       - href: From_tif_to_trainable_S2_UN.ipynb
         text: Training
       - href: post_training_UN.ipynb

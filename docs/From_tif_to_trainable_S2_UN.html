@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Adriano Fossati">
-<meta name="dcterms.date" content="2025-10-22">
+<meta name="dcterms.date" content="2026-05-14">
 
 <title>Training preparation steps – Waterhole Detection - UN Handbook</title>
 <style>
@@ -147,7 +147,11 @@ pre, .cell-output, .cell-output-display {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./S2_download_GEE.html"> 
-<span class="menu-text">Download Sentinel-2 Images</span></a>
+<span class="menu-text">Download S2 (single AOI)</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./S2_download_GEE_random_sampling.html"> 
+<span class="menu-text">Download S2 (Random AOIs)</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./From_tif_to_trainable_S2_UN.html" aria-current="page"> 
@@ -231,7 +235,7 @@ pre, .cell-output, .cell-output-display {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 22, 2025</p>
+      <p class="date">May 14, 2026</p>
     </div>
   </div>
   
@@ -253,7 +257,7 @@ pre, .cell-output, .cell-output-display {
 <section id="path-definition" class="level1">
 <h1>1. Path definition</h1>
 <p>We define the path of the project, and refer the correct python scripts containing the functions that are automatically called when running dependencies.</p>
-<div id="cell-3" class="cell" data-execution_count="2">
+<div id="cell-3" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
@@ -278,14 +282,26 @@ pre, .cell-output, .cell-output-display {
 <p>We will now transform the example raw tif image into a usable png for future steps. It creates a padded png image to exactly match the size dividable by the stride and tile size.<br>
 Caution that you need to define the config file called “config_train_Drive_UN.yaml” as instructed to make sure it matches your paths and runs everything smoothly.<br>
 Use the prepare() function if you are using the Planet .tif file, and use the prepare_S2() function if you are using the Sentinel 2 file.</p>
-<div id="cell-5" class="cell" data-execution_count="3">
+<div id="cell-5" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Sentinel 2 file: </span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>train.prepare_S2(<span class="st">"config_train_Drive_UN.yaml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Processed 1/1 images</code></pre>
+<pre><code>Doing gdal work...
+Done with gdal work for 2025-06_mimal_test_S2.tif
+New Width:  5408 New Height:  4160
+Doing gdal work...
+Done with gdal work for 2025-07_mimal_test_S2.tif
+New Width:  5408 New Height:  4160
+Doing gdal work...
+Done with gdal work for 2024-07_mimal_test_S2.tif
+New Width:  5408 New Height:  4160
+Doing gdal work...
+Done with gdal work for 2025-08_mimal_test_S2.tif
+New Width:  5408 New Height:  4160
+Processed 5/5 images</code></pre>
 </div>
 </div>
 </section>
