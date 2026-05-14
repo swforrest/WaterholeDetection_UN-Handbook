@@ -13,6 +13,8 @@ website:
         text: Getting Started
       - href: S2_download_GEE.ipynb
         text: Download Sentinel-2 Images
+      - href: S2_download_GEE_random_sampling.ipynb
+        text: Download Sentinel-2 Images (Random Sampling)
       - href: From_tif_to_trainable_S2_UN.ipynb
         text: Training
       - href: post_training_UN.ipynb
