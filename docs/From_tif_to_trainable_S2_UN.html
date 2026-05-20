@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Adriano Fossati">
-<meta name="dcterms.date" content="2026-05-14">
+<meta name="dcterms.date" content="2026-05-21">
 
 <title>Training preparation steps – Waterhole Detection - UN Handbook</title>
 <style>
@@ -235,7 +235,7 @@ pre, .cell-output, .cell-output-display {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 14, 2026</p>
+      <p class="date">May 21, 2026</p>
     </div>
   </div>
   
@@ -282,7 +282,7 @@ pre, .cell-output, .cell-output-display {
 <p>We will now transform the example raw tif image into a usable png for future steps. It creates a padded png image to exactly match the size dividable by the stride and tile size.<br>
 Caution that you need to define the config file called “config_train_Drive_UN.yaml” as instructed to make sure it matches your paths and runs everything smoothly.<br>
 Use the prepare() function if you are using the Planet .tif file, and use the prepare_S2() function if you are using the Sentinel 2 file.</p>
-<div id="cell-5" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell" data-execution_count="4">
 <details open="" class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#For the Sentinel 2 file: </span></span>
@@ -290,18 +290,39 @@ Use the prepare() function if you are using the Planet .tif file, and use the pr
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Doing gdal work...
-Done with gdal work for 2025-06_mimal_test_S2.tif
-New Width:  5408 New Height:  4160
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_002_2024-06.tif
+New Width:  3328 New Height:  3328
 Doing gdal work...
-Done with gdal work for 2025-07_mimal_test_S2.tif
-New Width:  5408 New Height:  4160
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_007_2024-06.tif
+New Width:  3328 New Height:  3328
 Doing gdal work...
-Done with gdal work for 2024-07_mimal_test_S2.tif
-New Width:  5408 New Height:  4160
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_011_2024-06.tif
+New Width:  1664 New Height:  1664
 Doing gdal work...
-Done with gdal work for 2025-08_mimal_test_S2.tif
-New Width:  5408 New Height:  4160
-Processed 5/5 images</code></pre>
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_004_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_001_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_008_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_006_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_003_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_009_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_000_2024-06.tif
+New Width:  3328 New Height:  3328
+Doing gdal work...
+Done with gdal work for north_aus_tropical_savanna_buffer10km_wgs84_005_2024-06.tif
+New Width:  3328 New Height:  3328
+Processed 28/28 images</code></pre>
 </div>
 </div>
 </section>
