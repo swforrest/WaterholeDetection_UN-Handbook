@@ -693,7 +693,8 @@ def create_padded_png_S2(
         # for 0 to 255 scaling
         # "-ot UInt16 -of png -b 3 -b 2 -b 1 -scale_1 0 255 0 65535 -scale_2 0 255 0 65535 -scale_3 0 255 0 65535"
         # for 80 to 255 scaling (to give higher contrast based on min and max values of the sentinel-2 bands)
-        "-ot UInt16 -of png -b 1 -b 2 -b 3 -scale_1 80 255 0 65535 -scale_2 80 255 0 65535 -scale_3 80 255 0 65535"
+        # "-ot UInt16 -of png -b 1 -b 2 -b 3 -scale_1 80 255 0 65535 -scale_2 80 255 0 65535 -scale_3 80 255 0 65535"
+        "-ot UInt16 -of png -b 1 -b 2 -b 3 -scale_1 0 255 0 65535 -scale_2 0 255 0 65535 -scale_3 0 255 0 65535"
     )
     # Translate original from tif into png
     print("Doing gdal work...")
