@@ -89,8 +89,8 @@ cache: False
 #Various values and parameters of the model manipulation. 
 #To be checked/adapted when running it. 
 workers: 4
-BATCH_SIZE: 8
-EPOCHS: 10
+BATCH_SIZE: 128
+EPOCHS: 25
 img_size: 416
 img_stride: 104
 TILE_SIZE: 416
