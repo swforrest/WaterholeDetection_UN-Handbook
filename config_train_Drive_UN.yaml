@@ -106,9 +106,14 @@ labels: labels
 classifications: images/classifications
 
 # Path to training images
-# These paths are referenced directly by YOLOv5 code, so they need to be absolute paths.
-train: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/train'
+# These paths are referenced directly by YOLOv5 code, so they need to be relative to the YOLOv5 directory.
+train: '../WaterholeDetection_UN-Handbook/training/train/train'
 # Path to validation images
-val: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/val'
+val: '../WaterholeDetection_UN-Handbook/training/train/val'
+
+
+# train: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/train'
+# # Path to validation images
+# val: '/Users/scottforrest/Library/CloudStorage/OneDrive-QueenslandUniversityofTechnology/FirstByte Waterholes WD/WaterholeDetection_UN-Handbook/training/train/val'
 
 ## End of the config file of training ##
